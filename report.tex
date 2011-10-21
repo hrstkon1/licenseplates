@@ -1,0 +1,104 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage[left=1in, right=1in, top=0.5in, bottom=1in]{geometry}
+\usepackage[czech]{babel}
+%\usepackage{czech}
+\usepackage[latin2]{inputenc}
+\usepackage{graphicx}
+
+\usepackage[T1]{fontenc}
+%\usepackage{lmodern}
+
+\usepackage{times}
+
+\begin{document}
+  \pagestyle{empty}
+  \noindent {\large\bf Test 1} \hfill ae4b33rpz, 13.10.2011\newline
+  \noindent\hspace*{0.01cm}\hrulefill\newline\newline
+  \noindent {\bf Task 1}\newline
+
+  You are writing a test and you are given a two choice question where
+  the answer could be either A or B. You assume that the apriori probabilities $P(A) =
+  P(B) = 0.5$ (i.e. there is equal a priori chance for each of the answers
+  to be correct). After reading the question you estimate
+  $P(A|\mbox{question}) = 0.8$. Further you know that the loss function
+  has the following form:\newline
+
+ \begin{tabular}{ccccc}
+    $W(A, A)$ & = & $W(B, B)$ & = & $-2$,\\
+    $W(A, B)$ & = & $W(B, A)$ & = & $4$,\\
+    $W(A, ?)$ & = & $W(B, ?)$ & = & $0$,
+  \end{tabular}\newline
+
+  where $W(X, Y)$ is the loss function, $X$ is the correct answer, 
+  $Y$ your decision, and ``?'' stands for not selecting any of the
+  answers (i.e. you say that you do not know).
+
+  \begin{enumerate}
+    \item What will be your decision if you wanted to minimalise the
+      Bayes risk and why?
+    \item At which value of $P(A|\mbox{question})$ it starts to be
+      advantageous to start to say ``I do not know''?
+  \end{enumerate}
+
+  \hfill {\it (2 points)}
+
+  \vspace*{1em}
+
+  \noindent {\bf Task 2} \newline
+
+  Given $p(x|2) \propto N(0,1)$. Find (approximately using the plot below) the Neyman-Pearson decision strategy (normal state is $1$ and dangerous state is $2$) under the assumption that allowed probability of overlooked danger is 2\% and
+  \begin{enumerate}
+    \item $p(x|1) \propto N(1,1)$\hfill {\it (1 point)}
+    \item $p(x|1) \propto N(1,\sigma)$; $\sigma \gg 1\hfill$ {\it (1 point)}
+    \item $p(x|1) \propto N(0,\sigma)$\hfill {\it (1 point)}
+  \end{enumerate}
+  Explain your calculation. Is there a case when the optimal decision strategy decides for dangerous state on 3 or more disconnected intervals of $X$?
+
+
+Tracking is formulated as an inference problem. Let $X_i$ be an object's internal state at grame $i$, a random variable, and $Y_i$ the measurements obained in the $i$-th frame. There are three main problems then:
+\begin{itemize}
+\item {\it Prediction.} Given $y_0, \ldots, y_{i-1}$ compute $P(X_i|Y_0=y_0, \ldots, Y_{i-1} = y_{i-1})$.
+\item {\it Data Association.} Identify the measurements from $i$-th frame, which tell us something about $X_i$.
+\item {\it Correction.} Given $y_i$ (the relevant ones) compute $P(X_i|Y_0=y_0, \ldots, Y_i = y_i)$.
+\end{itemize}
+Further, two independence assumptions are made:
+\begin{itemize}
+\item Only the immediate past matters, i.e. $$P(X_i|X_1, \ldots, X_{i-1}) = P(X_i|X_{i-1})\;.$$
+\item Measurements depend only on the current state $$P(Y_i, Y_j, \ldots, Y_k|X_i) = P(Y_i|X_i) P(Y_j, \ldots, Y_k|X_i)\;.$$
+\end{itemize}
+Without these assumptions, tracking is very difficult. Thanks to these assumptions, tracking has the structure of inference on a hidden Markov model.
+
+{\it Inference.} Done inductively. Lets assume we have $P(X_0)$. Then, correction step is easy
+$$P(X_0|Y_0=y_0) = \frac{P(y_0|X_0)P(X_0)}{P(y_0)} \propto P(y_0|X_0)P(X_0)\;.$$
+Lets assume we have $P(X_{i-1}|y_0,\ldots,y_{i-1})$. The prediction step is then (using the independence assumptions):
+\begin{eqnarray*}
+P(X_i|y_0,\ldots,y_{i-1}) &=& \int P(X_i,X_{i-1}|y_0,\ldots,y_{i-1})dX_{i-1}\\
+&=& \int P(X_i|X_{i-1},y_0,\ldots,y_{i-1}) P(X_{i-1}|y_0,\ldots,y_{i-1})dX_{i-1}\\
+&=& \int P(X_i|X_{i-1})P(X_{i-1}|y_0,\ldots,y_{i-1})dX_{i-1}\;.
+\end{eqnarray*}
+The correction step is then
+\begin{eqnarray*}
+P(X_i|y_0,\ldots,y_i) &=& \frac{P(X_i,y_0,\ldots,y_i)}{P(y_0,\ldots,y_i)}\\
+&=& \frac{P(y_i|X_i,y_0,\ldots,y_{i-1}) P(X_i|y_0,\ldots,y_{i-1}) P(y_0,\ldots,y_{i-1})}{P(y_0,\ldots,y_i)}\\
+&=& P(y_i|X_i) P(X_i|y_0,\ldots,y_{i-1})\frac{P(y_0,\ldots,y_{i-1})}{P(y_0,\ldots,y_i)}\\
+&=& \frac{P(y_i|X_i) P(X_i|y_0,\ldots,y_{i-1})}{\int P(y_i|X_i) P(X_i|y_0,\ldots,y_{i-1}) dX_i}
+\end{eqnarray*}
+With this formulation, the {\bf key issue} is to find a representation of the densities that
+\begin{itemize}
+\item is sufficiently accurate,
+\item allows quick and easy inference.
+\end{itemize} 
+{\bf Taxonomy} of different cases found in literature:
+\begin{itemize}
+\item Pdfs are linear, measurement model is linear and noise is Gaussian, then Kalman filter.
+\item When the model is non-linear, then extended Kalman filter (not always reliable)
+\item Multi-modal representation of $P(x_i|y_0,\ldots,y_i)$ -- Particle filter
+\item Determining relevant $y_i$'s -- Data association
+\end{itemize}  
+
+\end{document}
+
+
+
+
