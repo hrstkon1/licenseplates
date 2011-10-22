@@ -1,21 +1,43 @@
 \documentclass[a4paper,12pt]{article}
 
 \usepackage[left=1in, right=1in, top=0.5in, bottom=1in]{geometry}
-\usepackage[czech]{babel}
-%\usepackage{czech}
 \usepackage[latin2]{inputenc}
+\usepackage{amsmath}
 \usepackage{graphicx}
-
 \usepackage[T1]{fontenc}
+
 %\usepackage{lmodern}
 
 \usepackage{times}
 
 \begin{document}
   \pagestyle{empty}
-  \noindent {\large\bf Test 1} \hfill ae4b33rpz, 13.10.2011\newline
-  \noindent\hspace*{0.01cm}\hrulefill\newline\newline
-  \noindent {\bf Task 1}\newline
+
+  \section{Preliminaries}
+  Let $f : \mathbf{x} \mapsto \mathcal{R}$ be a function that maps a point $\mathbf{u} = (u_j,u_i)$ to a real value $x_{ij}$, where $(u_j,u_i) \in [0,N_j] \otimes [0,N_i]$.  So $f$ gives the raw intentsity value at each point in the image.  Denote $\mathbf{x_i}$ and$\mathbf{x_j}$  as the row and column of pixels at row $i$ and column $j$ repectively.  
+
+  Define the Markov model as 
+
+  \begin{eqnarray*}
+    \mathcal{A} &=& \{ s_k | \text{column} k \text{of a letter, or column of whitespace \}} \\
+    P(x_{ij}) &=& \text{probability of observing pixel intensity\,} x_{ij} \\
+    P(s_k) &=& \text{probability of observing hidden state \,} s_{k} \\
+    P(x_{ij}|s_k) &=& \text{probability of observing pixel intensity\,} x_{ij} \text{\,given\,} s_k  
+    
+
+  \end{eqnarray*}
+
+  \section{Preprocessing}
+  \subsection{Photometric Normalization}
+
+  \section{Training}
+  \subsection{Overview}
+  Jimmy
+
+  \subsection{Expectation Maximization for Learning Emission probability distributions}
+  Ondrej
+
+  \subsection{Setting Transition probabilties}
 
   You are writing a test and you are given a two choice question where
   the answer could be either A or B. You assume that the apriori probabilities $P(A) =
