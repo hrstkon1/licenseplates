@@ -5,26 +5,44 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage[T1]{fontenc}
+\usepackage{color}
+\usepackage{amssymb}
+%Some useful macros
 
-%\usepackage{lmodern}
+\definecolor{Cgreen}{rgb}{0,0.6,0}
+\definecolor{Cblue}{rgb}{0,0.39,0.61}
+
+\newcounter{ohNoteCounter}
+\newcommand{\ohnote}[1]{{\scriptsize  \color{Cgreen} $\clubsuit$~\refstepcounter{ohNoteCounter}\textsf{[OH]$_{\arabic{ohNoteCounter}}$:{#1}}}}
+
+\newcounter{jpNoteCounter}
+\newcommand{\jpnote}[1]{{\scriptsize  \color{Cblue} $\blacksquare$ \refstepcounter{jpNoteCounter}\textsf{[JP]$_{\arabic{jpNoteCounter}}$:{#1}}}}
+
+\IfFileExists{.notes_disabled}{
+	\renewcommand{\jpnote}[1]{}
+	\renewcommand{\ohnote}[1]{}
+}
+
+
 
 \usepackage{times}
 
 \begin{document}
   \pagestyle{empty}
+  \ohnote{This is useful way to leave notes. Both of us have command tu leave notes. I have \textbackslash ohnote, you have \textbackslash jpnote. Notes in whole document can be disabled by creating file with name ``.notes\_disabled''. }
+
+  \jpnote{Your notes will look like this }
 
   \section{Preliminaries}
-  Let $f : \mathbf{x} \mapsto \mathcal{R}$ be a function that maps a point $\mathbf{u} = (u_j,u_i)$ to a real value $x_{ij}$, where $(u_j,u_i) \in [0,N_j] \otimes [0,N_i]$.  So $f$ gives the raw intentsity value at each point in the image.  Denote $\mathbf{x_i}$ and$\mathbf{x_j}$  as the row and column of pixels at row $i$ and column $j$ repectively.  
+  Let $f : \mathbf{x} \mapsto \mathcal{R}$ be a function that maps a point $\mathbf{u} = (u_j,u_i)$ to a real value $x_{ij}$, where $(u_j,u_i) \in [0,N_j] \otimes [0,N_i]$.  So $f$ gives the raw intensity value at each point in the image.  Denote $\mathbf{x_i}$ and$\mathbf{x_j}$  as the row and column of pixels at row $i$ and column $j$ respectively.  
 
   Define the Markov model as 
 
   \begin{eqnarray*}
-    \mathcal{A} &=& \{ s_k | \text{column} k \text{of a letter, or column of whitespace \}} \\
+    \mathcal{K} &=& \{ s_k | \text{\,column\,} k \text{\,of a letter, or column of whitespace \,} \} \\
     P(x_{ij}) &=& \text{probability of observing pixel intensity\,} x_{ij} \\
     P(s_k) &=& \text{probability of observing hidden state \,} s_{k} \\
     P(x_{ij}|s_k) &=& \text{probability of observing pixel intensity\,} x_{ij} \text{\,given\,} s_k  
-    
-
   \end{eqnarray*}
 
   \section{Preprocessing}
@@ -35,9 +53,31 @@
   Jimmy
 
   \subsection{Expectation Maximization for Learning Emission probability distributions}
-  Ondrej
+  \ohnote{Here are some notes, that we might use. It's not complete text} 
 
-  \subsection{Setting Transition probabilties}
+  \[
+   p(x_{ij}) = p(x_{ij} | s_k) p(s_k) + p(x_{ij}|\overline{s_k}) p(\overline{s_k}),
+  \]
+  where $\overline{s_k}$ represents complement to $s_k$ (pixel is not in $s_k$).
+
+  \ohnote{I don't know about this, what about another approach. I am stuck here actually. :-(
+  I describe this on example, if we agree on this I rewrite it in general form. }
+
+  We have $n$ observations (training set) of the first column of letter A. Let this be multi-set $\mathcal{O}_{A,1} = \{\mathbf{x_1},...,\mathbf{x_n}\}$, where $\mathbf{x_{i,j}}$ is pixel in $j$-th row. For template $s_{A,1}$ stands
+  \[
+    p(\mathbf{x_{A,1}}|s_{A,1}) = \prod_{i=1}^{k} p(x_{A,1,i}|s_{A,1}).
+  \]
+  We need to train $p(x_{A,1,i}|s_{A,1})$ somehow. The most naive way is probably mean value...
+  
+
+
+  \subsection{Setting Transition probabilities}
+\end{document}
+
+%--------------------------------------
+% Here the document ends, code below is just as sample
+%--------------------------------------
+
 
   You are writing a test and you are given a two choice question where
   the answer could be either A or B. You assume that the apriori probabilities $P(A) =
@@ -119,7 +159,7 @@ With this formulation, the {\bf key issue} is to find a representation of the de
 \item Determining relevant $y_i$'s -- Data association
 \end{itemize}  
 
-\end{document}
+
 
 
 
