@@ -53,22 +53,19 @@
   Jimmy
 
   \subsection{Expectation Maximization for Learning Emission probability distributions}
-  \ohnote{Here are some notes, that we might use. It's not complete text} 
-
-  \[
-   p(x_{ij}) = p(x_{ij} | s_k) p(s_k) + p(x_{ij}|\overline{s_k}) p(\overline{s_k}),
-  \]
-  where $\overline{s_k}$ represents complement to $s_k$ (pixel is not in $s_k$).
-
-  \ohnote{I don't know about this, what about another approach. I am stuck here actually. :-(
-  I describe this on example, if we agree on this I rewrite it in general form. }
-
-  We have $n$ observations (training set) of the first column of letter A. Let this be multi-set $\mathcal{O}_{A,1} = \{\mathbf{x_1},...,\mathbf{x_n}\}$, where $\mathbf{x_{i,j}}$ is pixel in $j$-th row. For template $s_{A,1}$ stands
-  \[
-    p(\mathbf{x_{A,1}}|s_{A,1}) = \prod_{i=1}^{k} p(x_{A,1,i}|s_{A,1}).
-  \]
-  We need to train $p(x_{A,1,i}|s_{A,1})$ somehow. The most naive way is probably mean value...
+  Let $f : \mathcal{K} \mapsto \mathcal{T}, \mathcal{T} = \{ \mathbf{t_k} | \mathbf{t_k} = (\alpha_1 , \dots , \alpha_n)\}$ be a function that maps state $s_k$ into the template $\mathbf{t_k}$ which is vector of numbers $\alpha \in [0, 1]$. $\alpha_i$ represents ratio of two gaussian models $\mathcal{N}_1(\sigma_1, \mu_1), \mathcal{N}_2(\sigma_2, \mu_2)$, such that probability of occurring pixel intensity of at row $i$ of intensity of $x_i$ given state $s_k$ is equal to
+  	\[
+	p(x_i | s_k) = \alpha  \mathcal{N}_1 +  (1-\alpha) \mathcal{N}_2 .
+	\]
   
+  We assume that pixel intensity at each row is independent. Therefore the probability of occurring pixel column $\mathbf{x_j}$ given the state $s_k$ is can be written as 
+  	\[
+	p(\mathbf{x_j}|s_k) =   \prod_{\alpha \in \mathbf{t_k}}  \alpha  \mathcal{N}_1 +  (1-\alpha) \mathcal{N}_2,
+	\]
+where $\mathbf{t_k} = f(s_k)$. 
+
+Values of unknown parameters $\mathcal{T}, \sigma_1, \sigma_2, \mu_1, \mu_2$ we obtain by running EM maximization algorithm on training set. 
+\ohnote{Describe usage of EM alg.}
 
 
   \subsection{Setting Transition probabilities}
