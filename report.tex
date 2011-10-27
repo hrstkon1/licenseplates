@@ -50,22 +50,59 @@
 
   \section{Training}
   \subsection{Overview}
-  Jimmy
-
-  \subsection{Expectation Maximization for Learning Emission probability distributions}
-  Let $f : \mathcal{K} \mapsto \mathcal{T}, \mathcal{T} = \{ \mathbf{t_k} | \mathbf{t_k} = (\alpha_1 , \dots , \alpha_n)\}$ be a function that maps state $s_k$ into the template $\mathbf{t_k}$ which is vector of numbers $\alpha \in [0, 1]$. $\alpha_i$ represents ratio of two gaussian models $\mathcal{N}_1(\sigma_1, \mu_1), \mathcal{N}_2(\sigma_2, \mu_2)$, such that probability of occurring pixel intensity of at row $i$ of intensity of $x_i$ given state $s_k$ is equal to
-  	\[
-	p(x_i | s_k) = \alpha  \mathcal{N}_1 +  (1-\alpha) \mathcal{N}_2 .
-	\]
+  We make the simplifying assumption that every two pixels intensities
+  of a column are pairwise independent. Therefore the probability of
+  an observed image column $\mathbf{x_j}$ given the hidden state $s_k$
+  can be calculated as follows
+  \begin{equation}
+    p(\mathbf{x_j}|s_k) = \prod_{i=1}^{m} P(x_{ij}|s_k) ,
+  \end{equation}
   
-  We assume that pixel intensity at each row is independent. Therefore the probability of occurring pixel column $\mathbf{x_j}$ given the state $s_k$ is can be written as 
-  	\[
-	p(\mathbf{x_j}|s_k) =   \prod_{\alpha \in \mathbf{t_k}}  \alpha  \mathcal{N}_1 +  (1-\alpha) \mathcal{N}_2,
-	\]
-where $\mathbf{t_k} = f(s_k)$. 
+  Given an image of a license plate, a pixel in the image can be
+  either part of the letter, which we call foreground, or part of the
+  background of the license plate.  Thus the probability of observing
+  image intenstity given hidden state $p(x_{ij}|s_k)$ is given by
+  \begin{equation}
+    P(x_{ij}|s_k)=P(x_{ij}|f_{js_k})P(f_{js_k})+P(x_{ij}|\bar{f_{js_k}})P(\bar{f_{js_k}})
+  \end{equation}
+  
+  
+  We assume that foreground and background pixels of the license plate
+  are each normally distributed.  This motivates the choice of
+  modeling the probability of observed pixel $x_{ij}$ given hidden
+  state $s_k$ as the mixture of two gaussian distributions
+  $\mathcal{N}_1(\sigma_1, \mu_1), \mathcal{N}_2(\sigma_2, \mu_2)$
+  with mixing parameter so that
+  \begin{equation}
+    P(x_{ij} | s_k) = \alpha_{is_k} \mathcal{N}_1 + (1-\alpha_{is_k})
+    \mathcal{N}_2 .
+  \end{equation}
 
-Values of unknown parameters $\mathcal{T}, \sigma_1, \sigma_2, \mu_1, \mu_2$ we obtain by running EM maximization algorithm on training set. 
-\ohnote{Describe usage of EM alg.}
+  \jpnote{need to talk about how the model enables different
+    distributions for each row of each hidden state}
+
+  
+  The model is parameterized by Let $f : \mathcal{K} \mapsto
+  \mathcal{T}, \mathcal{T} = \{ \mathbf{t_k} | \mathbf{t_k} =
+  (\alpha_1 , \dots , \alpha_n)\}$ be a function that maps state $s_k$
+  into the template $\mathbf{t_k}$ which is vector of numbers $\alpha
+  \in [0, 1]$.
+
+  The values of the unknown parameters $\mathcal{T}, \sigma_1,
+  \sigma_2, \mu_1, \mu_2$ will be learned from the annotated license
+  plate data set.
+
+  
+
+  \subsection{Expectation Maximization for Learning Emission
+    probability distributions}
+ obtain by running EM maximization
+  algorithm on training set.
+ 
+
+  
+
+  \ohnote{Describe usage of EM alg.}
 
 
   \subsection{Setting Transition probabilities}
