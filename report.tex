@@ -24,19 +24,44 @@
 }
 
 
-
 \usepackage{times}
 
 \begin{document}
-  \pagestyle{empty}
-  \ohnote{This is useful way to leave notes. Both of us have command tu leave notes. I have \textbackslash ohnote, you have \textbackslash jpnote. Notes in whole document can be disabled by creating file with name ``.notes\_disabled''. }
+\pagestyle{empty} \ohnote{This is useful way to leave notes. Both of
+  us have command tu leave notes. I have \textbackslash ohnote, you
+  have \textbackslash jpnote. Notes in whole document can be disabled
+  by creating file with name ``.notes\_disabled''. }
 
-  \jpnote{Your notes will look like this }
+\jpnote{Your notes will look like this }
+
+\section{Problem}
+The problem is to detect the identifying string of characters on
+vehicle license plates.  Provided are images of license plates that
+have been segmented and ortho-rectified. A subset of these images have
+corresponding annotations that give the top and bottom boundary of the
+vehicle id, the bounding box of each character and white-space
+interval of the string, and the correct character label for each
+bounding box that contains a character.
+
+\section{Model}
+The license plate image is modeled as a sequence of columns
+\[
+s = (s_1,s_2,\ldots,s_n)
+\]
+
+
+the topground-truth for the character sequence, rectangles that denote
+the location of each character boundary and white space interval.
 
   \section{Preliminaries}
-  Let $f : \mathbf{x} \mapsto \mathcal{R}$ be a function that maps a point $\mathbf{u} = (u_j,u_i)$ to a real value $x_{ij}$, where $(u_j,u_i) \in [0,N_j] \otimes [0,N_i]$.  So $f$ gives the raw intensity value at each point in the image.  Denote $\mathbf{x_i}$ and$\mathbf{x_j}$  as the row and column of pixels at row $i$ and column $j$ respectively.  
+  Let $f : \mathbf{x} \mapsto \mathcal{R}$ be a function that maps a
+  point $\mathbf{u} = (u_j,u_i)$ to a real value $x_{ij}$, where
+  $(u_j,u_i) \in [0,N_j] \otimes [0,N_i]$.  So $f$ gives the raw
+  intensity value at each point in the image.  Denote $\mathbf{x_i}$
+  and$\mathbf{x_j}$ as the row and column of pixels at row $i$ and
+  column $j$ respectively.
 
-  Define the Markov model as 
+  Define the Markov model as
 
   \begin{eqnarray*}
     \mathcal{K} &=& \{ s_k | \text{\,column\,} k \text{\,of a letter, or column of whitespace \,} \} \\
@@ -95,9 +120,10 @@
   
 
   \subsection{Expectation Maximization for Learning Emission
-    probability distributions}
- obtain by running EM maximization
-  algorithm on training set.
+    probability obtain}
+
+  
+  distributions by running EM maximization algorithm on training set.
  
 
   
