@@ -7,6 +7,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{color}
 \usepackage{amssymb}
+\usepackage{times}
 %Some useful macros
 
 \definecolor{Cgreen}{rgb}{0,0.6,0}
@@ -23,99 +24,97 @@
 	\renewcommand{\ohnote}[1]{}
 }
 
-
-\usepackage{times}
-
 \begin{document}
 \pagestyle{empty} \ohnote{This is useful way to leave notes. Both of
   us have command tu leave notes. I have \textbackslash ohnote, you
   have \textbackslash jpnote. Notes in whole document can be disabled
   by creating file with name ``.notes\_disabled''. }
 
-\jpnote{Your notes will look like this }
+\section{Problem Statement}
+The problem is to report the unique identifying string of characters,
+called the \emph{vehicle-id}, of a license plate.  Provided are images
+of license plates that have been segmented and ortho-rectified. A
+subset of these images each have the following corresponding
+annotations: a top and bottom boundary that delimits the vehicle-id
+within the segmented license plate, a bounding box of each character
+and white-space interval that comprises the vehicle-id, and a
+character label for each bounding box that contains a character.  We
+assume that the font of all letters across license plates is
+identical, and we refer to an exemplar of a character from the font
+set as a \emph{template}.  
 
-\section{Problem}
-The problem is to detect the identifying string of characters on
-vehicle license plates.  Provided are images of license plates that
-have been segmented and ortho-rectified. A subset of these images have
-corresponding annotations that give the top and bottom boundary of the
-vehicle id, the bounding box of each character and white-space
-interval of the string, and the correct character label for each
-bounding box that contains a character.
+\section{Denotations}
+Let $I\colon \mathbf{u} \to \mathbb{R}$ be a function that maps a
+point $\mathbf{u} = (u_j,u_i)$ to a real value $x_{ij}$, so that $I$
+gives the raw intensity value at each point in the image.  Denote
+$\mathbf{x}_i$ and $\mathbf{x}_j$ as the row and column of pixels at
+row $i$ and column $j$ respectively in the image.
 
-\section{Model}
-The license plate image is modeled as a sequence of columns
-\[
-s = (s_1,s_2,\ldots,s_n)
-\]
+\section{Model Definition}
+We model a \emph{vehicle-id} by a Hidden Markov Model
+(\bfseries{HMM}).
+
+\begin{tabular}{ ll } 
+  $x=(\mathbf{x}_1,\ldots,\mathbf{x}_n)$ & \emph{observations}: left-to-right sequence of columns in the
+  image of the segmented license plate of width $n$ pixels,\\
+  $\mathbf{K} = \{ s_k | \text{\,column\,} k \text{\,of a letter, or column of whitespace \,}\}$  \\
+  $s=(s_1,\ldots,s_n)$ & \emph{hidden states}: sequence of hidden states $s_i$ where each state
+  is the column of the letter template represented by $x_i$, \\
+  \multicolumn{2}{|c|}{} \\
+  $P(x,s)=p(s_j)\prod_{j=1}^{n} p(x_j \mid s_j)\prod_{j=2}^{n} p(s_j \mid s_{j-1})$.
+\end{tabular}
+
+\jpnote{Need to put something here about going from hidden states to
+  characters}
+
+\section{System Overview}
 
 
-the topground-truth for the character sequence, rectangles that denote
-the location of each character boundary and white space interval.
 
-  \section{Preliminaries}
-  Let $f : \mathbf{x} \mapsto \mathcal{R}$ be a function that maps a
-  point $\mathbf{u} = (u_j,u_i)$ to a real value $x_{ij}$, where
-  $(u_j,u_i) \in [0,N_j] \otimes [0,N_i]$.  So $f$ gives the raw
-  intensity value at each point in the image.  Denote $\mathbf{x_i}$
-  and$\mathbf{x_j}$ as the row and column of pixels at row $i$ and
-  column $j$ respectively.
-
-  Define the Markov model as
-
-  \begin{eqnarray*}
-    \mathcal{K} &=& \{ s_k | \text{\,column\,} k \text{\,of a letter, or column of whitespace \,} \} \\
-    P(x_{ij}) &=& \text{probability of observing pixel intensity\,} x_{ij} \\
-    P(s_k) &=& \text{probability of observing hidden state \,} s_{k} \\
-    P(x_{ij}|s_k) &=& \text{probability of observing pixel intensity\,} x_{ij} \text{\,given\,} s_k  
-  \end{eqnarray*}
-
-  \section{Preprocessing}
-  \subsection{Photometric Normalization}
+\section{Preprocessing}
+\subsection{Photometric Normalization}
 
   \section{Training}
   \subsection{Overview}
   We make the simplifying assumption that every two pixels intensities
   of a column are pairwise independent. Therefore the probability of
   an observed image column $\mathbf{x_j}$ given the hidden state $s_k$
-  can be calculated as follows
-  \begin{equation}
-    p(\mathbf{x_j}|s_k) = \prod_{i=1}^{m} P(x_{ij}|s_k) ,
-  \end{equation}
-  
-  Given an image of a license plate, a pixel in the image can be
-  either part of the letter, which we call foreground, or part of the
-  background of the license plate.  Thus the probability of observing
-  image intenstity given hidden state $p(x_{ij}|s_k)$ is given by
-  \begin{equation}
-    P(x_{ij}|s_k)=P(x_{ij}|f_{js_k})P(f_{js_k})+P(x_{ij}|\bar{f_{js_k}})P(\bar{f_{js_k}})
-  \end{equation}
-  
-  
-  We assume that foreground and background pixels of the license plate
-  are each normally distributed.  This motivates the choice of
-  modeling the probability of observed pixel $x_{ij}$ given hidden
-  state $s_k$ as the mixture of two gaussian distributions
-  $\mathcal{N}_1(\sigma_1, \mu_1), \mathcal{N}_2(\sigma_2, \mu_2)$
-  with mixing parameter so that
-  \begin{equation}
-    P(x_{ij} | s_k) = \alpha_{is_k} \mathcal{N}_1 + (1-\alpha_{is_k})
-    \mathcal{N}_2 .
-  \end{equation}
+  can be calculated as follows \[p(\mathbf{x_j}|s_k) = \prod_{i=1}^{m}
+  P(x_{ij}|s_k).\]
 
-  \jpnote{need to talk about how the model enables different
-    distributions for each row of each hidden state}
+\end{equation}
+Given an image of a license plate, a pixel in the image can be either
+part of the letter, which we call foreground, or part of the
+background of the license plate.  Thus the probability of observing
+image intenstity given hidden state $p(x_{ij}|s_k)$ is given by
+\begin{equation}
+  P(x_{ij}|s_k)=P(x_{ij}|f_{js_k})P(f_{js_k})+P(x_{ij}|\bar{f_{js_k}})P(\bar{f_{js_k}})
+\end{equation}
+  
+  
+We assume that foreground and background pixels of the license plate
+are each normally distributed.  This motivates the choice of modeling
+the probability of observed pixel $x_{ij}$ given hidden state $s_k$ as
+the mixture of two gaussian distributions $\mathcal{N}_1(\sigma_1,
+\mu_1), \mathcal{N}_2(\sigma_2, \mu_2)$ with mixing parameter so that
+\begin{equation}
+  P(x_{ij} | s_k) = \alpha_{is_k} \mathcal{N}_1 + (1-\alpha_{is_k})
+  \mathcal{N}_2 .
+\end{equation}
+
+\jpnote{need to talk about how the model enables different
+  distributions for each row of each hidden state}
 
   
-  The model is parameterized by Let $f : \mathcal{K} \mapsto
-  \mathcal{T}, \mathcal{T} = \{ \mathbf{t_k} | \mathbf{t_k} =
-  (\alpha_1 , \dots , \alpha_n)\}$ be a function that maps state $s_k$
-  into the template $\mathbf{t_k}$ which is vector of numbers $\alpha
-  \in [0, 1]$.
+The model is parameterized by Let $f : \mathcal{K} \mapsto
+\mathcal{T}, \mathcal{T} = \{ \mathbf{t_k} | \mathbf{t_k} = (\alpha_1
+, \dots , \alpha_n)\}$ be a function that maps state $s_k$ into the
+template $\mathbf{t_k}$ which is vector of numbers $\alpha \in [0,
+1]$.
 
-  The values of the unknown parameters $\mathcal{T}, \sigma_1,
-  \sigma_2, \mu_1, \mu_2$ will be learned from the annotated license
-  plate data set.
+The values of the unknown parameters $\mathcal{T}, \sigma_1, \sigma_2,
+\mu_1, \mu_2$ will be learned from the annotated license plate data
+set.
 
   
 
@@ -133,94 +132,4 @@ the location of each character boundary and white space interval.
 
   \subsection{Setting Transition probabilities}
 \end{document}
-
-%--------------------------------------
-% Here the document ends, code below is just as sample
-%--------------------------------------
-
-
-  You are writing a test and you are given a two choice question where
-  the answer could be either A or B. You assume that the apriori probabilities $P(A) =
-  P(B) = 0.5$ (i.e. there is equal a priori chance for each of the answers
-  to be correct). After reading the question you estimate
-  $P(A|\mbox{question}) = 0.8$. Further you know that the loss function
-  has the following form:\newline
-
- \begin{tabular}{ccccc}
-    $W(A, A)$ & = & $W(B, B)$ & = & $-2$,\\
-    $W(A, B)$ & = & $W(B, A)$ & = & $4$,\\
-    $W(A, ?)$ & = & $W(B, ?)$ & = & $0$,
-  \end{tabular}\newline
-
-  where $W(X, Y)$ is the loss function, $X$ is the correct answer, 
-  $Y$ your decision, and ``?'' stands for not selecting any of the
-  answers (i.e. you say that you do not know).
-
-  \begin{enumerate}
-    \item What will be your decision if you wanted to minimalise the
-      Bayes risk and why?
-    \item At which value of $P(A|\mbox{question})$ it starts to be
-      advantageous to start to say ``I do not know''?
-  \end{enumerate}
-
-  \hfill {\it (2 points)}
-
-  \vspace*{1em}
-
-  \noindent {\bf Task 2} \newline
-
-  Given $p(x|2) \propto N(0,1)$. Find (approximately using the plot below) the Neyman-Pearson decision strategy (normal state is $1$ and dangerous state is $2$) under the assumption that allowed probability of overlooked danger is 2\% and
-  \begin{enumerate}
-    \item $p(x|1) \propto N(1,1)$\hfill {\it (1 point)}
-    \item $p(x|1) \propto N(1,\sigma)$; $\sigma \gg 1\hfill$ {\it (1 point)}
-    \item $p(x|1) \propto N(0,\sigma)$\hfill {\it (1 point)}
-  \end{enumerate}
-  Explain your calculation. Is there a case when the optimal decision strategy decides for dangerous state on 3 or more disconnected intervals of $X$?
-
-
-Tracking is formulated as an inference problem. Let $X_i$ be an object's internal state at grame $i$, a random variable, and $Y_i$ the measurements obained in the $i$-th frame. There are three main problems then:
-\begin{itemize}
-\item {\it Prediction.} Given $y_0, \ldots, y_{i-1}$ compute $P(X_i|Y_0=y_0, \ldots, Y_{i-1} = y_{i-1})$.
-\item {\it Data Association.} Identify the measurements from $i$-th frame, which tell us something about $X_i$.
-\item {\it Correction.} Given $y_i$ (the relevant ones) compute $P(X_i|Y_0=y_0, \ldots, Y_i = y_i)$.
-\end{itemize}
-Further, two independence assumptions are made:
-\begin{itemize}
-\item Only the immediate past matters, i.e. $$P(X_i|X_1, \ldots, X_{i-1}) = P(X_i|X_{i-1})\;.$$
-\item Measurements depend only on the current state $$P(Y_i, Y_j, \ldots, Y_k|X_i) = P(Y_i|X_i) P(Y_j, \ldots, Y_k|X_i)\;.$$
-\end{itemize}
-Without these assumptions, tracking is very difficult. Thanks to these assumptions, tracking has the structure of inference on a hidden Markov model.
-
-{\it Inference.} Done inductively. Lets assume we have $P(X_0)$. Then, correction step is easy
-$$P(X_0|Y_0=y_0) = \frac{P(y_0|X_0)P(X_0)}{P(y_0)} \propto P(y_0|X_0)P(X_0)\;.$$
-Lets assume we have $P(X_{i-1}|y_0,\ldots,y_{i-1})$. The prediction step is then (using the independence assumptions):
-\begin{eqnarray*}
-P(X_i|y_0,\ldots,y_{i-1}) &=& \int P(X_i,X_{i-1}|y_0,\ldots,y_{i-1})dX_{i-1}\\
-&=& \int P(X_i|X_{i-1},y_0,\ldots,y_{i-1}) P(X_{i-1}|y_0,\ldots,y_{i-1})dX_{i-1}\\
-&=& \int P(X_i|X_{i-1})P(X_{i-1}|y_0,\ldots,y_{i-1})dX_{i-1}\;.
-\end{eqnarray*}
-The correction step is then
-\begin{eqnarray*}
-P(X_i|y_0,\ldots,y_i) &=& \frac{P(X_i,y_0,\ldots,y_i)}{P(y_0,\ldots,y_i)}\\
-&=& \frac{P(y_i|X_i,y_0,\ldots,y_{i-1}) P(X_i|y_0,\ldots,y_{i-1}) P(y_0,\ldots,y_{i-1})}{P(y_0,\ldots,y_i)}\\
-&=& P(y_i|X_i) P(X_i|y_0,\ldots,y_{i-1})\frac{P(y_0,\ldots,y_{i-1})}{P(y_0,\ldots,y_i)}\\
-&=& \frac{P(y_i|X_i) P(X_i|y_0,\ldots,y_{i-1})}{\int P(y_i|X_i) P(X_i|y_0,\ldots,y_{i-1}) dX_i}
-\end{eqnarray*}
-With this formulation, the {\bf key issue} is to find a representation of the densities that
-\begin{itemize}
-\item is sufficiently accurate,
-\item allows quick and easy inference.
-\end{itemize} 
-{\bf Taxonomy} of different cases found in literature:
-\begin{itemize}
-\item Pdfs are linear, measurement model is linear and noise is Gaussian, then Kalman filter.
-\item When the model is non-linear, then extended Kalman filter (not always reliable)
-\item Multi-modal representation of $P(x_i|y_0,\ldots,y_i)$ -- Particle filter
-\item Determining relevant $y_i$'s -- Data association
-\end{itemize}  
-
-
-
-
-
 
