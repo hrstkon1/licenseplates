@@ -69,20 +69,15 @@ We model a \emph{vehicle-id} by a Hidden Markov Model
 
 \section{System Overview}
 
-
-
 \section{Preprocessing}
-\subsection{Photometric Normalization}
 
-  \section{Training}
-  \subsection{Overview}
-  We make the simplifying assumption that every two pixels intensities
-  of a column are pairwise independent. Therefore the probability of
-  an observed image column $\mathbf{x_j}$ given the hidden state $s_k$
-  can be calculated as follows \[p(\mathbf{x_j}|s_k) = \prod_{i=1}^{m}
-  P(x_{ij}|s_k).\]
+\section{Learning}
+We make the simplifying assumption that every two pixels intensities
+of a column are pairwise independent. Therefore the probability of an
+observed image column $\mathbf{x_j}$ given the hidden state $s_k$ can
+be calculated as follows \[p(\mathbf{x_j}|s_k) = \prod_{i=1}^{m}
+P(x_{ij}|s_k).\]
 
-\end{equation}
 Given an image of a license plate, a pixel in the image can be either
 part of the letter, which we call foreground, or part of the
 background of the license plate.  Thus the probability of observing
@@ -116,8 +111,6 @@ The values of the unknown parameters $\mathcal{T}, \sigma_1, \sigma_2,
 \mu_1, \mu_2$ will be learned from the annotated license plate data
 set.
 
-  
-
   \subsection{Expectation Maximization for Learning Emission
     probability obtain}
 
@@ -131,5 +124,7 @@ set.
 
 
   \subsection{Setting Transition probabilities}
+
+  \section{Inference}
 \end{document}
 
