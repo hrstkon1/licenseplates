@@ -2,7 +2,10 @@ package cz.cvut.fel.cyber.gmm;
 
 import org.apache.commons.math.distribution.NormalDistribution;
 import org.apache.commons.math.distribution.NormalDistributionImpl;
+import sun.tools.tree.ArrayAccessExpression;
 
+import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -14,10 +17,11 @@ import java.util.*;
  */
 public class Learning {
 
-    private Map<ImageColumnKey, List<double[]>> learningData;
+    private Map<ImageColumnKey, List<double[]>> learningData, probabilities;
 
     public Learning() {
         learningData = new HashMap<ImageColumnKey, List<double[]>>();
+        probabilities = new HashMap<ImageColumnKey, List<double[]>>();
     }
 
     public void addImage(Image image) {
@@ -27,9 +31,11 @@ public class Learning {
             if (list == null) {
                 list = new ArrayList<double[]>();
                 learningData.put(column.getKey(), list);
+                probabilities.put(column.getKey(), new ArrayList<double[]>());
             }
 
             list.add(column.getData().getData());
+            probabilities.get(column.getKey()).add(new double[column.getData().getData().length]);
         }
     }
 
@@ -38,13 +44,17 @@ public class Learning {
     public void learn() {
         Map<ImageColumnKey, double[]> alphas = new HashMap<ImageColumnKey, double[]>();
 
+        final int alphaLength = learningData.values().iterator().next().get(0).length;
+
         for (ImageColumnKey key : learningData.keySet()) {
-            alphas.put(key, new double[learningData.get(key).get(0).length]);
+            double[] alpha = new double[alphaLength];
+            Arrays.fill(alpha, 0.5);
+            alphas.put(key, alpha);
         }
 
 
-        foreground = new NormalDistributionImpl(1, 1);
-        background = new NormalDistributionImpl(-1, 1);
+        foreground = new NormalDistributionImpl(-1, 1);
+        background = new NormalDistributionImpl(1, 1);
         System.out.printf("mean1: %f, std1: %f, mean2: %f, std2: %f\n", foreground.getMean(), foreground.getStandardDeviation(), background.getMean(), background.getStandardDeviation());
 
         for (int i = 0; i < 10; i++) {
@@ -60,6 +70,19 @@ public class Learning {
         for (Map.Entry<ImageColumnKey, double[]> e : alphas.entrySet()) {
             System.out.println(e.getKey() + " -> " + Arrays.toString(e.getValue()));
         }
+
+        Templates templates = new Templates();
+
+        for (Map.Entry<ImageColumnKey, double[]> e : alphas.entrySet()) {
+            templates.addTemplate(e.getKey(), e.getValue());
+        }
+
+        try {
+            templates.printToFile("alphas.csv");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private void mStep(Map<ImageColumnKey, double[]> alphas) {
@@ -67,40 +90,65 @@ public class Learning {
                mean2 = 0,
                std1 = 0,
                std2 = 0,
-               alphaSum1 = 0,
-               alphaSum2 = 0;
+               probSum1 = 0,
+               probSum2 = 0;
 
         for (Map.Entry<ImageColumnKey, double[]> e : alphas.entrySet()) {
             for (int i = 0; i < e.getValue().length; i++) {
-                double alpha = e.getValue()[i];
                 List<double[]> columns = learningData.get(e.getKey());
-                for (double[] column : columns) {
+                Iterator<double[]> columnIterator = columns.iterator();
+                Iterator<double[]> probsIterator = probabilities.get(e.getKey()).iterator();
+
+                double alphaUp = 0,
+                       alphaDown = 0;
+
+                while (columnIterator.hasNext()) {
+                    double[] column = columnIterator.next();
+                    double[] probColumn = probsIterator.next();
+
                     double x = column[i];
-                    mean1 += alpha * x;
-                    mean2 += (1-alpha) * x;
-                    alphaSum1 += alpha;
-                    alphaSum2 += (1-alpha);
+                    double prob = probColumn[i];
+
+                    mean1 += prob * x;
+                    mean2 += (1-prob) * x;
+
+                    probSum1 += prob;
+                    probSum2 += (1-prob);
+
+                    alphaUp += prob;
+                    alphaDown += (1-prob);
+                }
+
+                e.getValue()[i] = alphaUp /(alphaUp+alphaDown);
+            }
+
+
+        }
+
+        mean1 = mean1 / probSum1;
+        mean2 = mean2 / probSum2;
+
+        for (Map.Entry<ImageColumnKey, double[]> e : alphas.entrySet()) {
+            for (int i = 0; i < e.getValue().length; i++) {
+                List<double[]> columns = learningData.get(e.getKey());
+                Iterator<double[]> columnIterator = columns.iterator();
+                Iterator<double[]> probsIterator = probabilities.get(e.getKey()).iterator();
+
+                while (columnIterator.hasNext()) {
+                    double[] column = columnIterator.next();
+                    double[] probColumn = probsIterator.next();
+
+                    double x = column[i];
+                    double prob = probColumn[i];
+
+                    std1 += prob * pow2(x - mean1);
+                    std2 += (1-prob) * pow2(x-mean2);
                 }
             }
         }
 
-        mean1 = mean1 / alphaSum1;
-        mean2 = mean2 / alphaSum2;
-
-        for (Map.Entry<ImageColumnKey, double[]> e : alphas.entrySet()) {
-            for (int i = 0; i < e.getValue().length; i++) {
-                double alpha = e.getValue()[i];
-                List<double[]> columns = learningData.get(e.getKey());
-                for (double[] column : columns) {
-                    double x = column[i];
-                    std1 += alpha * pow2(x - mean1);
-                    std2 += (1-alpha) * pow2(x-mean2);
-                }
-            }
-        }
-
-        std1 = Math.sqrt(std1 / alphaSum1);
-        std2 = Math.sqrt(std2 / alphaSum2);
+        std1 = Math.sqrt(std1 / probSum1);
+        std2 = Math.sqrt(std2 / probSum2);
 
         foreground = new NormalDistributionImpl(mean1, std1);
         background = new NormalDistributionImpl(mean2, std2);
@@ -109,23 +157,33 @@ public class Learning {
     private void eStep(Map<ImageColumnKey, double[]> alphas) {
         for (Map.Entry<ImageColumnKey, double[]> e : alphas.entrySet()) {
             for (int i = 0; i < e.getValue().length; i++) {
+                countProbability(e.getKey(), i, e.getValue()[i]);
+            }
+        }
+
+        /*
+        for (Map.Entry<ImageColumnKey, double[]> e : alphas.entrySet()) {
+            for (int i = 0; i < e.getValue().length; i++) {
                 double alpha = computeAlpha(e.getKey(), i);
                 e.getValue()[i] = alpha;
             }
         }
+
+         */
     }
 
-    private double computeAlpha(ImageColumnKey key, int row) {
+    private void countProbability(ImageColumnKey key, int row, double alpha) {
         List<double[]> doubles = learningData.get(key);
-        double up = 0,
-               down = 0;
-        for (double[] column : doubles) {
-            double tmp = foreground.density(column[row]);
-            up += tmp;
-            down += tmp + background.density(column[row]);
-        }
+        List<double[]> probs = probabilities.get(key);
+        Iterator<double[]> doublesIterator = doubles.iterator();
+        Iterator<double[]> probsIterator = probs.iterator();
 
-        return Math.round(up / down);
+        while (doublesIterator.hasNext()) {
+            double[] column = doublesIterator.next();
+            double[] probColumn = probsIterator.next();
+            double tmp = alpha*foreground.density(column[row]);
+            probColumn[row] = tmp/(tmp + (1-alpha)*background.density(column[row]));
+        }
     }
 
     private double pow2(final double x) {

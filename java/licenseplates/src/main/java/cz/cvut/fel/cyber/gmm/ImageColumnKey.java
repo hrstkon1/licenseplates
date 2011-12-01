@@ -56,4 +56,8 @@ public class ImageColumnKey implements Comparable<ImageColumnKey> {
 
         return out;
     }
+
+    public String getName() {
+        return name;
+    }
 }
