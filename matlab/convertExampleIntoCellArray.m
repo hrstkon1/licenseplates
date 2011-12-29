@@ -2,7 +2,9 @@ function out = convertExampleIntoCellArray(example, fid)
     USE_CROPPED_IMAGE = 1;
     
     if USE_CROPPED_IMAGE == 1 
-        data = example.nimg;
+        [data left] = cropInputImage(example.nimg);
+        example.text.l = example.text.l - left + 1;
+        example.text.r = example.text.r - left + 1;
     else
         data = example.img;
     end
