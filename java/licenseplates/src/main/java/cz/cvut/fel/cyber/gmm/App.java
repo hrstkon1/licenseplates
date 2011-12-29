@@ -20,6 +20,7 @@ public class App {
             l.addImage(Image.loadImage(file));
             //System.out.println(counter++);
         }
+        //System.exit(0);
         System.out.println("Learning");
         l.learn();
     }

@@ -1,5 +1,7 @@
 package cz.cvut.fel.cyber.gmm;
 
+import org.apache.commons.collections.primitives.ArrayIntList;
+import org.apache.commons.collections.primitives.IntList;
 import org.apache.commons.math.distribution.NormalDistribution;
 import org.apache.commons.math.distribution.NormalDistributionImpl;
 import sun.tools.tree.ArrayAccessExpression;
@@ -18,6 +20,7 @@ import java.util.*;
 public class Learning {
 
     private Map<ImageColumnKey, List<double[]>> learningData, probabilities;
+    Map<String, IntList> stats = new HashMap<String, IntList>();
 
     public Learning() {
         learningData = new HashMap<ImageColumnKey, List<double[]>>();
@@ -36,12 +39,22 @@ public class Learning {
 
             list.add(column.getData().getData());
             probabilities.get(column.getKey()).add(new double[column.getData().getData().length]);
+
+            if (column.isLast()) {
+                if (stats.containsKey(column.getKey().getName()) == false) {
+                    stats.put(column.getKey().getName(), new ArrayIntList());
+                }
+
+                stats.get(column.getKey().getName()).add(column.getKey().getOrder());
+            }
         }
     }
 
     private NormalDistributionImpl foreground, background;
 
     public void learn() {
+        filter();
+
         Map<ImageColumnKey, double[]> alphas = new HashMap<ImageColumnKey, double[]>();
 
         final int alphaLength = learningData.values().iterator().next().get(0).length;
@@ -57,7 +70,7 @@ public class Learning {
         background = new NormalDistributionImpl(1, 1);
         System.out.printf("mean1: %f, std1: %f, mean2: %f, std2: %f\n", foreground.getMean(), foreground.getStandardDeviation(), background.getMean(), background.getStandardDeviation());
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 20; i++) {
 
             eStep(alphas);
             mStep(alphas);
@@ -83,6 +96,41 @@ public class Learning {
             throw new RuntimeException(e);
         }
 
+    }
+
+    private void filter() {
+
+
+
+
+        Set<ImageColumnKey> toRemove = new HashSet<ImageColumnKey>();
+
+        for (Map.Entry<String, IntList> e : stats.entrySet()) {
+            int[] ints = e.getValue().toArray();
+            Arrays.sort(ints);
+            double median;
+            if (ints.length == 1) {
+               median = ints[0];
+            }  else if (ints.length % 2 == 0) {
+                int lowMiddle = (int)Math.floor(ints.length / 2.0);
+                median = (ints[lowMiddle-1] + ints[lowMiddle])/2.0;
+
+            } else {
+                median = ints[ints.length / 2];
+            }
+
+            for (ImageColumnKey imageColumnKey : learningData.keySet()) {
+                if (median < imageColumnKey.getOrder() && imageColumnKey.getName().equals(e.getKey())) {
+                    toRemove.add(imageColumnKey);
+                }
+            }
+            System.out.println(e.getKey() +"    "+ median);
+            for (ImageColumnKey imageColumnKey : toRemove) {
+                learningData.remove(imageColumnKey);
+                probabilities.remove(imageColumnKey);
+            }
+            toRemove.clear();
+        }
     }
 
     private void mStep(Map<ImageColumnKey, double[]> alphas) {

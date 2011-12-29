@@ -19,6 +19,8 @@ public class Image {
 
     private final List<AnnotatedImageColumn> data;
 
+    private static int maxZero = 0;
+
     public static Image loadImage(File file) throws IOException {
         CSVReader reader = new CSVReader(new FileReader(file), '\t');
 
@@ -28,11 +30,19 @@ public class Image {
 
         String lastKey = null;
         int order = 0;
+        AnnotatedImageColumn column = null;
         for (String[] line : data) {
             if (line[0].equals(lastKey)) {
                 order++;
             } else {
                 order = 0;
+            }
+
+            if (line[0].equals("&")) {
+                if (column != null) {
+                    column.setLast(true);
+                }
+                continue;
             }
             lastKey = line[0];
             ImageColumnKey key = new ImageColumnKey(line[0], order);
@@ -43,7 +53,8 @@ public class Image {
                 columnValues[i-1] = Double.parseDouble(line[i]);
             }
 
-            imageData.add(new AnnotatedImageColumn(key, new ImageColumn(columnValues)));
+            column = new AnnotatedImageColumn(key, new ImageColumn(columnValues));
+            imageData.add(column);
         }
 
         return new Image(imageData);

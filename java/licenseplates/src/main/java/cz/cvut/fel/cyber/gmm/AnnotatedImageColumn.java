@@ -11,6 +11,7 @@ public class AnnotatedImageColumn {
 
     private final ImageColumnKey key;
     private final ImageColumn data;
+    private boolean last = false;
 
     public AnnotatedImageColumn(ImageColumnKey key, ImageColumn data) {
         this.key = key;
@@ -25,5 +26,11 @@ public class AnnotatedImageColumn {
         return data;
     }
 
+    public boolean isLast() {
+        return last;
+    }
 
+    public void setLast(boolean last) {
+        this.last = last;
+    }
 }

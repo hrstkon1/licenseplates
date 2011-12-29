@@ -1,4 +1,4 @@
-function out = convertExampleIntoMatrix(example, fid)
+function out = convertExampleIntoCellArray(example, fid)
     USE_CROPPED_IMAGE = 1;
     
     if USE_CROPPED_IMAGE == 1 
@@ -9,8 +9,7 @@ function out = convertExampleIntoMatrix(example, fid)
     data = data';
     
     leftCharIndex = 1;
-    rightCharIndex = 1;
-    
+
     i = 1;
     out = {};
     while i < size(data,1)
@@ -19,6 +18,7 @@ function out = convertExampleIntoMatrix(example, fid)
              out = [out; getOutLine(data, i+j, example.text.str(leftCharIndex))];  
            end
            i = i+j;
+           out = [out; '&' cell(size(data(i,:)))];
            leftCharIndex = leftCharIndex + 1;
        else
            out = [out; getOutLine(data, i, '#')]; 

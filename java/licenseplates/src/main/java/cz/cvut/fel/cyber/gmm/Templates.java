@@ -40,15 +40,20 @@ public class Templates {
                 lastName = e.getKey().getName();
             }
 
-            String[] line = new String[e.getValue().length ];
+            String[] line = new String[e.getValue().length];
 
             //line[0] = e.getKey().toString();
             double[] data = e.getValue();
-            for (int i = 1; i < line.length; i++) {
-                line[i-1] = String.valueOf(data[i - 1]);
+            for (int i = 0; i < line.length; i++) {
+                line[i] = String.valueOf(data[i]);
             }
             System.out.println(e.getKey().toString());
             writer.writeNext(line);
+        }
+
+        if (writer != null) {
+            writer.flush();
+            writer.close();
         }
 
 
