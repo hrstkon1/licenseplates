@@ -2,31 +2,33 @@ function PX_SJ = lic_make_emissions_mtx(labels,px_sj)
 m = numel(labels);
 n = labels(end);
 
+p_same = 0.1;
+p_next = 1.0-p_same;
+
 ii = [];
 jj = [];
 s = [];
 
-% whitespace transitions
-jj = cat(2,jj,[1 labels(2:end)-1]);
-ii = cat(2,ii,ones(size(jj)));
+% from whitespace 
+ii = cat(2,ii,[1 labels(1:end-1)+1]);
+jj = cat(2,jj,ones(size(ii)));
 s = px_sj(ii);
 
-% first column transitions
-k = m-1;
-jj = cat(2,jj,ones(1,k));
-jj = cat(2,jj,labels(1:end-1)+1);
-t = [labels(1:end-1)+1 labels(1:end-1)+1];
-ii = cat(2,ii,t);
-s = cat(2,s,px_sj(t));
-
-% other column transitions
+% from glyph columns
 for i = 2:m
-    k = labels(i)-labels(i-1)-1;
-    t = [labels(i-1)+2:labels(i) labels(i-1)+2:labels(i)];
-    ii = cat(2,ii,t);
+    k = labels(i)-labels(i-1);
+    ii_tmp = [labels(i-1)+1:labels(i) labels(i-1)+2:labels(i)];
+    ii = cat(2,ii,ii_tmp);
     jj = cat(2,jj,...
-             [labels(i-1)+1:labels(i)-1 labels(i-1)+2:labels(i)]);
-    s = cat(2,s,px_sj(t));
+             [labels(i-1)+1:labels(i) labels(i-1)+1:labels(i)-1]);
+    s = cat(2,s,px_sj(ii_tmp));
 end
+
+% add special case for terminal glyph columns
+k = m-1;
+ii_tmp = ones(1,k);
+ii = cat(2,ii,ii_tmp);
+jj = cat(2,jj,labels(2:end));
+s = cat(2,s,px_sj(ii_tmp));
 
 PX_SJ = sparse(ii,jj,s,n,n);

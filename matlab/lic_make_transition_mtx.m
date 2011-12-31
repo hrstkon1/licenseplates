@@ -2,30 +2,28 @@ function P = lic_make_transition_mtx(labels)
 m = numel(labels);
 n = labels(end);
 
-ii = [];
-jj = [];
-s = [];
+p_same = 0.1;
+p_next = 1.0-p_same;
 
-% whitespace transitions
-jj = cat(2,jj,[1 labels(2:end)-1]);
-ii = cat(2,ii,ones(size(jj)));
-s = cat(2,s,ii/sum(ii));
+% from whitespace 
+ii = [1 labels(1:end-1)+1];
+jj = ones(size(ii));
+s = [25 ones(1,numel(ii)-1)]/numel(ii);
 
-% first column transitions
-k = m-1;
-jj = cat(2,jj,ones(1,k));
-jj = cat(2,jj,labels(1:end-1)+1);
-ii = cat(2,ii,[labels(1:end-1)+1 labels(1:end-1)+1]);
-s = cat(2,s,[0.9*ones(1,k) 0.1*ones(1,k)]);
-
-% other column transitions
+% from glyph columns
 for i = 2:m
-    k = labels(i)-labels(i-1)-1;
+    k = labels(i)-labels(i-1);
     ii = cat(2,ii,...
-             [labels(i-1)+2:labels(i) labels(i-1)+2:labels(i)]);
+             [labels(i-1)+1:labels(i) labels(i-1)+2:labels(i)]);
     jj = cat(2,jj,...
-             [labels(i-1)+1:labels(i)-1 labels(i-1)+2:labels(i)]);
-    s = cat(2,s,[0.9*ones(1,k) 0.1*ones(1,k)]);
+             [labels(i-1)+1:labels(i) labels(i-1)+1:labels(i)-1]);
+    s = cat(2,s,[p_same*ones(1,k) p_next*ones(1,k-1)]);
 end
+
+% add special case for terminal glyph columns
+k = m-1;
+ii = cat(2,ii,ones(1,k));
+jj = cat(2,jj,labels(2:end));
+s = cat(2,s,p_next*ones(1,k));
 
 P = sparse(ii,jj,s,n,n);

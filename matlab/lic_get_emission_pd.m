@@ -2,7 +2,7 @@ function [uf,sf,ub,sb,alpha,labels,B] = lic_get_emission_pd()
 [B,ix] = sort('#258BEILPTX0369CFJMRUY147ADHKNSVZ');
 
 alpha = [];
-labels = []
+labels = [];
 
 for b = B
     data = textread(sprintf('../trained_data/%s.csv',b), ...
