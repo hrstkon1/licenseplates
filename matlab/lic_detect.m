@@ -61,6 +61,10 @@ p_xs = rho.*psi;
 sj = lic_calc_best_path(p_xs,P);
 sj_labels = lic_get_glyph_col(sj,labels,B);
 
+[lic_str,cols] = get_label_string(sj_labels);
+
+lic_display_result(x,lic_str,cols);
+
 if debug_output
     figure;
     ix = uf-3*sf:1e-3:uf+3*sf; %covers more than 99% of the curve
@@ -75,10 +79,3 @@ if debug_output
     figure;imagesc(p_xs);colormap gray;
 end
 
-figure;
-imagesc(x);
-axis equal;
-colormap gray;
-set(gca,'fontsize',6);
-set(gca,'XTick',[1:n]); 
-set(gca,'XTickLabels',sj_labels);
