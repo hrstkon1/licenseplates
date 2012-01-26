@@ -8,7 +8,7 @@ p_next = 1.0-p_same;
 % from whitespace 
 ii = [1 labels(1:end-1)+1];
 jj = ones(size(ii));
-s = [25 ones(1,numel(ii)-1)]/numel(ii);
+s = [0.3 ones(1,numel(ii)-1)*0.7/(numel(ii)-1)];
 
 % from glyph columns
 for i = 2:m

@@ -13,6 +13,8 @@ load('../data/np-images-5000.mat');
 
 [uf,sf,ub,sb,alpha,labels,B] = lic_get_emission_pd();
 
+iii = 3;
+
 x = cropInputImage(data(lic_num).nimg);
 xs = sort(unique(x));
 dx = median(xs(2:end)-xs(1:end-1))/2;
@@ -63,11 +65,11 @@ if debug_output
     figure;
     ix = uf-3*sf:1e-3:uf+3*sf; %covers more than 99% of the curve
     iy = pdf('normal',ix,uf,sf);
-    figure;plot(ix,iy);
+    figure;plot(ix,iy,'r-');
 
     ix = ub-3*sb:1e-3:ub+3*sb; %covers more than 99% of the curve
     iy = pdf('normal',ix,ub,sb);
-    hold on;plot(ix,iy);hold off;
+    hold on;plot(ix,iy,'b-');hold off;
 
     figure;imagesc(rho);colormap(gray);
     figure;imagesc(p_xs);colormap gray;
