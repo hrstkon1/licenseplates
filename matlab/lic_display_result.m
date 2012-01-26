@@ -7,11 +7,10 @@ colormap gray;
 dy = 10;
 
 X = [c(1,:) c(2,:);
-     c(1,:) c(2,:);]
+     c(1,:) c(2,:)];
 
 Y = [zeros(1,size(X,2))-dy; ...
      size(x,1)*ones(1,size(X,2))+dy];
-
 
 for m = 1:numel(s)
     text((c(1,m)+c(2,m))/2,size(x,1)+15,s(m), ...

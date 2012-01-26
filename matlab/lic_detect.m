@@ -64,17 +64,9 @@ sj_labels = lic_get_glyph_col(sj,labels,B);
 [lic_str,cols] = get_label_string(sj_labels);
 
 lic_display_result(x,lic_str,cols);
+lic_display_pds(uf,sf,ub,sb);
 
 if debug_output
-    figure;
-    ix = uf-3*sf:1e-3:uf+3*sf; %covers more than 99% of the curve
-    iy = pdf('normal',ix,uf,sf);
-    figure;plot(ix,iy,'r-');
-
-    ix = ub-3*sb:1e-3:ub+3*sb; %covers more than 99% of the curve
-    iy = pdf('normal',ix,ub,sb);
-    hold on;plot(ix,iy,'b-');hold off;
-
     figure;imagesc(rho);colormap(gray);
     figure;imagesc(p_xs);colormap gray;
 end
