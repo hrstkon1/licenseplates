@@ -63,9 +63,9 @@ sj_labels = lic_get_glyph_col(sj,labels,B);
 
 [lic_str,cols] = get_label_string(sj_labels);
 
-lic_display_result(x,lic_str,cols);
-lic_display_pds(uf,sf,ub,sb);
-
+%lic_display_result(x,lic_str,cols);
+%lic_display_pds(uf,sf,ub,sb);
+%
 if debug_output
     figure;imagesc(rho);colormap(gray);
     figure;imagesc(p_xs);colormap gray;

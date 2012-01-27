@@ -29,11 +29,12 @@
 \IfFileExists{.notes_disabled}{ \renewcommand{\jpnote}[1]{}
   \renewcommand{\ohnote}[1]{} }
 
+
 \title { \normalsize Graphical Markov Models \\ Winter 2011 \\
- \vspace{10mm} {\bf Identifying License Plates with Hidden Markov
+ \vspace{10mm} {\bf Identifying License Plates Ids with Hidden Markov
     Models } }
 \author{\normalsize James Pritts and Ondra Hrstka }
-\date{ \small November 2011 }
+\date{ \small January 2012 }
 
 \begin{document}
 \maketitle
@@ -103,7 +104,7 @@ foreground and background distributions are position independent,
 while the mixture parameter depends on the row position of the glyph
 column $s_j$.
 
-\section{Learning}
+\section{Learning the Emission Probabilities}
 The annotated data $\truth$ does not contain segmentations of
 vehicle-id characters from the background.  \emph{Unsupervised
   learning} will be required to specify the \emph{emissions
@@ -120,8 +121,6 @@ specified as
 Given the annotated data $\truth$, we seek the maximum-likelihood
 estimate \[ \optmodel = \argmax_{\model} \lhood(\truth \mid \model)\].
 
-
-
 for each glyph column $k_j \in \mathbf{K}$ from the annotated image
 data, Learning a model for a glyph column comprises of learning the
 position-independent global foreground $ p(x_{ij}\mid
@@ -129,14 +128,56 @@ c=f,s_j)=\mathcal{N}(\sigma_1,\mu_1)$ and background $p(x_{ij} \mid
 c=b,s_j)=\mathcal{N}(\sigma_2,\mu_2)$ image intensity models, as well
 their position-dependent and glyph-dependent priors.
 
-% \begin{algorithm}
-%   \Input{A set of images $I_n$} \Output{Maximum likelihood estimate
-%   of parameters $\gamma_{i \in 1:n},\mu_f,\sigma_f,\mu_b\sigma_b$}
-%
-%
-%
-% \end{algorithm}
-%
+\section{Setting the transition Probabilities}
+
+\section{Inference}
+The hamming loss function is used for inference. With the hamming
+loss, the optimal sequence $S = \left(\,s_1,s_2,\dots,s_n\,\right)$ is
+found by
+
+\[ s_i^* = \sum_{i=1}^{n}\sum_{s_i'}p(x,s_i')\delta_{s_i}{s_i'} \]. 
+
+To find the most probable sequence $s$, the probabiliies $p(x,s_i)$
+are first computed by multiplying $p(x_1,\ldots,x_i,s_i)$ and
+$p(x_{i+1},\ldots,x_n|s_i)$, each of which can be computed dynamically
+in $\mathcal{O}(|K|^2n)$. The HMM contains transitions with zero
+probabilities. For example, we do not allow a transition from glyph
+column $A_5$ to white space. Selecting $k^*=\argmax_k{p(x,s_i=k)}$ for
+each $i$ could give a sequence $s$ that is invalid. To prevent invalid
+sequences, we remove states that correspond to invalid transitions and
+select the valid sequence that maximizes the sum of joint probabilites
+$p(x,s_i)$. This is done dynamically with complexity
+$\mathcal{O}(|K|n)$.
+
+\section{Evaluation}
+Two metrics are introduced for performance evaluation. To determine
+the accuracy of the inferred license plate ids, the expected
+Levenstein distance between inferred id and ground truth id is
+computed over the test set $\mathcal{U}$. The Levenshtein distance
+function $L$ between two strings is defined as the minimum number of
+edits needed to transform one string into the other, with the
+allowable edit operations being insertion, deletion, or substitution
+of a single character.
+
+\[ \text{accuracy} = \frac{\sum_{k \in \mathcal{U}}
+  L(id_{k,\text{inferred}},id_{k,\text{truth}})}{|\mathcal{U}|} \]
+
+To determine the quality of segmentation, a Receiver Operator Curve
+(\textbf{ROC}) is computed with probability of detection $p_d$ and
+probability of false alarm $p_{fa}$ defined as follows
+
+%\begin{align*}
+%  p_d &= \frac{\sum_{k \in \mathcal{U}} \sum_{ij}
+%    A(R_{i,\text{est}},R_{j,{truth}}){7|\mathcal{U}|} & A = \begin{cases}
+%    0, & \text{if regions }R_i,R_j\text{ overlap } \\
+%    1, & \text{if }n\text{ is odd}
+%\end{cases}
+%\end{align*}
+
+\section{Observations}
+
+\section{Suggested Improvements}
+
 
 See something on figure \ref{fig:some-label}
 \begin{figure}[htp]
