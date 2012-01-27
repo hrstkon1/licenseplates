@@ -66,4 +66,3 @@ for i=2:lu1
 end
 d=[d dl(end,end)];
 end
-
