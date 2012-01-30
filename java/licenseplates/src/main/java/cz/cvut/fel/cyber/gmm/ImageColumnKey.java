@@ -9,14 +9,14 @@ package cz.cvut.fel.cyber.gmm;
  */
 public class ImageColumnKey implements Comparable<ImageColumnKey> {
 
-    public static final String SPACE_CHARACTER = "#";
+    public static final String SPACE_CHARACTER = "#[]";
 
     private final String name;
     private final int order;
 
     public ImageColumnKey(String name, int order) {
         this.name = name;
-        if (name.equals(SPACE_CHARACTER)) {
+        if (SPACE_CHARACTER.contains(name)) {
             order = 0;
         }
         this.order = order;

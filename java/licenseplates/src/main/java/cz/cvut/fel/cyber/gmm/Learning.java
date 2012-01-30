@@ -4,7 +4,6 @@ import org.apache.commons.collections.primitives.ArrayIntList;
 import org.apache.commons.collections.primitives.IntList;
 import org.apache.commons.math.distribution.NormalDistribution;
 import org.apache.commons.math.distribution.NormalDistributionImpl;
-import sun.tools.tree.ArrayAccessExpression;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -70,7 +69,7 @@ public class Learning {
         background = new NormalDistributionImpl(1, 1);
         System.out.printf("mean1: %f, std1: %f, mean2: %f, std2: %f\n", foreground.getMean(), foreground.getStandardDeviation(), background.getMean(), background.getStandardDeviation());
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 100; i++) {
 
             eStep(alphas);
             mStep(alphas);

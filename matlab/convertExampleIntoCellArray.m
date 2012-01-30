@@ -23,7 +23,13 @@ function out = convertExampleIntoCellArray(example, fid)
            out = [out; '&' cell(size(data(i,:)))];
            leftCharIndex = leftCharIndex + 1;
        else
-           out = [out; getOutLine(data, i, '#')]; 
+           if i < example.text.l(1)
+               out = [out; getOutLine(data, i, '[')]; 
+           elseif i > example.text.r(end)
+                out = [out; getOutLine(data, i, ']')]; 
+           else
+                out = [out; getOutLine(data, i, '#')]; 
+           end
        end
        i = i+1;
     end

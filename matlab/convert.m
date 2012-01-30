@@ -1,7 +1,7 @@
 OUTPUT_FOLDER = 'output';
 OUTPUT_FILE_PREFIX = 'data-';
 
-INPUT_FILE = '../data/np-images-1000.mat';
+INPUT_FILE = '../data/np-images-5000.mat';
 %%
 load(INPUT_FILE)
 

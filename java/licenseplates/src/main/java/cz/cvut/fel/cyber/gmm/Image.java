@@ -56,7 +56,7 @@ public class Image {
             column = new AnnotatedImageColumn(key, new ImageColumn(columnValues));
             imageData.add(column);
         }
-
+        reader.close();
         return new Image(imageData);
     }
 
