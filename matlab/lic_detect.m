@@ -13,11 +13,8 @@ load('../data/np-images-5000.mat');
 
 [uf,sf,ub,sb,alpha,labels,B] = lic_get_emission_pd();
 
-iii = 3;
-
 x = cropInputImage(data(lic_num).nimg);
 xs = sort(unique(x));
-dx = median(xs(2:end)-xs(1:end-1))/2;
 
 P = lic_make_transition_mtx(labels);
 
@@ -31,8 +28,8 @@ p_Xj_Sj = zeros(m,n);
 P_Xj_Sj = cell(1,n);
 
 for j = 1:n
-    p_XijF = repmat(normcdf(x(:,j)+dx,uf,sf)-normcdf(x(:,j)-dx,uf,sf),1,m);
-    p_XijB = repmat(normcdf(x(:,j)+dx,ub,sb)-normcdf(x(:,j)-dx,ub,sb),1,m);
+    p_XijF = repmat(normpdf(x(:,j),uf,sf),1,m);
+    p_XijB = repmat(normpdf(x(:,j),ub,sb),1,m);
     p_Xj_Sj(:,j) = prod(alpha.*p_XijF+(1-alpha).*p_XijB,1);
     P_Xj_Sj{j} = lic_make_emissions_mtx(labels,p_Xj_Sj(:,j));
 end
@@ -58,6 +55,8 @@ end
 p_xs = rho.*psi;
 
 sj = lic_calc_best_path(p_xs,P);
+%[cc,sj] = max(p_xs,[],1);
+
 sj_labels = lic_get_glyph_col(sj,labels,B);
 
 [lic_str,cols] = get_label_string(sj_labels);

@@ -5,7 +5,7 @@ n = labels(end);
 p_same = 0.0;
 p_next = 1.0-p_same;
 
-p_ws = 0.25;
+p_ws = 0.33;
 p_nws = 1.0-p_ws;
 
 % from whitespace middle
