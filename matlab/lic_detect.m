@@ -37,14 +37,13 @@ for j = 1:n
     P_Xj_Sj{j} = lic_make_emissions_mtx(labels,p_Xj_Sj(:,j));
 end
 
-rho(:,1) = [p_Xj_Sj(1,1) zeros(1,m-1)]';
+rho(:,1) = [zeros(1,m-2) p_Xj_Sj(end,1) 0]';
 rho(:,1) = rho(:,1)/sum(rho(:,1));
 for j = 2:n
     P2 = P_Xj_Sj{j}*P;
     rho(:,j) = P2*rho(:,j-1);
     rho(:,j) = rho(:,j)/sum(rho(:,j));
 end
-
 
 P2 = P_Xj_Sj{n}*P;
 
@@ -63,7 +62,7 @@ sj_labels = lic_get_glyph_col(sj,labels,B);
 
 [lic_str,cols] = get_label_string(sj_labels);
 
-%lic_display_result(x,lic_str,cols);
+lic_display_result(x,lic_str,cols);
 %lic_display_pds(uf,sf,ub,sb);
 %
 if debug_output

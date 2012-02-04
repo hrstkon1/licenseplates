@@ -2,7 +2,7 @@ function sj = lic_calc_best_path(p_xs,P)
 global m n;
 pred = zeros(m,n);
 g0 = zeros(n,1);
-g0(1,1) = p_xs(1,1);
+g0(end-1,1) = p_xs(end-1,1);
 
 for j = 2:n
     gmask = g0 > 0;
