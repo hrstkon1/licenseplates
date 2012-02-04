@@ -7,7 +7,7 @@ function [labelsString, columns] = get_label_string(sj_labels)
     labelsString = [];
     columns = [];
     for i = 1:numel(sj_labels)
-        isSpace = strcmp('#', sj_labels(i));
+        isSpace = strcmp('#', sj_labels(i)) || strcmp('[1', sj_labels(i)) || strcmp(']1', sj_labels(i));
         
         switch state
             case STATE_LEFT_SPACE
