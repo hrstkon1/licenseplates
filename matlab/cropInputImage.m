@@ -1,13 +1,13 @@
 function [out leftBound rightBound] = cropInputImage(img)
     criterion = @(x) sum(x) > 4;
-    for i = 1:size(img, 2)
+    for i = 15:size(img, 2)
        if criterion(img(:,i))
            leftBound = i;
            break;
        end 
     end
     
-    for i = fliplr(1:size(img, 2))
+    for i = fliplr(1:size(img, 2)-6)
         if criterion(img(:,i))
             rightBound = i;
             break;
