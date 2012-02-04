@@ -18,6 +18,7 @@ for j = 2:n
     for k2 = 1:k
         g1(pmask(:,k2),k2) = g1(pmask(:,k2),k2)+g0(im(k2));
     end
+
     [CC,II] = max(g1,[],2);
     ic = CC > eps;
     g0(ic) = CC(ic);

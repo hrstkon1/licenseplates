@@ -1,4 +1,4 @@
-function sj_labels = lic_detect(lic_num,debug_output)
+function sj_labels = lic_detect(lic_num,display_result, debug_output)
 global m n;
 
 if nargin < 1
@@ -6,6 +6,10 @@ if nargin < 1
 end
 
 if nargin < 2
+    display_result = 0;
+end
+
+if nargin < 3
     debug_output = 0;
 end
 
@@ -13,7 +17,9 @@ load('../data/np-images-5000.mat');
 
 [uf,sf,ub,sb,alpha,labels,B] = lic_get_emission_pd();
 
-x = cropInputImage(data(lic_num).nimg);
+xd = cropInputImage(data(lic_num).nimg);
+x = xd(3:end-2,:);
+
 xs = sort(unique(x));
 
 P = lic_make_transition_mtx(labels);
@@ -61,11 +67,12 @@ sj_labels = lic_get_glyph_col(sj,labels,B);
 
 [lic_str,cols] = get_label_string(sj_labels);
 
-lic_display_result(x,lic_str,cols);
+if display_result
+    lic_display_result(xd,lic_str,cols);
+end
 %lic_display_pds(uf,sf,ub,sb);
 %
 if debug_output
     figure;imagesc(rho);colormap(gray);
     figure;imagesc(p_xs);colormap gray;
 end
-
