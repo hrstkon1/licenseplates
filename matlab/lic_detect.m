@@ -1,4 +1,4 @@
-function sj_labels = lic_detect(lic_num,display_result, debug_output)
+function sj_labels = lic_detect(lic_num,display_result, debug_output, data)
 global m n;
 
 if nargin < 1
@@ -13,7 +13,9 @@ if nargin < 3
     debug_output = 0;
 end
 
-load('../data/np-images-5000.mat');
+if nargin < 4 
+    load('../data/np-images-5000.mat');
+end
 
 [uf,sf,ub,sb,alpha,labels,B] = lic_get_emission_pd();
 
