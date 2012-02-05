@@ -17,6 +17,7 @@ load('../data/np-images-5000.mat');
 
 [uf,sf,ub,sb,alpha,labels,B] = lic_get_emission_pd();
 
+
 xd = cropInputImage(data(lic_num).nimg);
 x = xd(3:end-2,:);
 
@@ -70,9 +71,10 @@ sj_labels = lic_get_glyph_col(sj,labels,B);
 if display_result
     lic_display_result(xd,lic_str,cols);
 end
-%lic_display_pds(uf,sf,ub,sb);
 %
+
 if debug_output
+    figure;lic_display_pds(uf,sf,ub,sb);
     figure;imagesc(rho);colormap(gray);
     figure;imagesc(p_xs);colormap gray;
 end
