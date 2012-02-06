@@ -18,4 +18,11 @@ for m = 1:numel(s)
          'Color',[0 0 0], ...
          'HorizontalAlignment','center');
     line(X,Y,'LineWidth',3,'Color','b');
+    ylim([-10 35]);
+    set(gca,'XTick',[])
+    set(gca,'YTick',[])
 end
+
+file_name = sprintf('lic_%s',s);
+set(gcf, 'PaperPositionMode', 'auto');
+print(gcf,file_name,'-depsc2');
