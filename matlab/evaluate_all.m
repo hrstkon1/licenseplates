@@ -1,24 +1,25 @@
 load('results.mat')
 load('../data/np-images-5000.mat');
 %%
-p_d = zeros(numel(results), 1);
-p_fa = zeros(numel(results), 1);
-hammingDist = zeros(numel(results), 1);
+[p_d p_fa] = lic_evaluate(data, results);
+%%
+lDist = zeros(numel(results), 1);
+allChars = 0;
 
 for i = 1:numel(data)
-   [a b] = lic_evaluate(data(i), results{i});
-   p_d(i) = a;
-   p_fa(i) = b;
-   hammingDist(i) = strdist(data(i).text.str, get_label_string(results{i}));
+   lDist(i) = min(strdist(data(i).text.str, get_label_string(results{i})), numel(data(i).text.str));
+   allChars = allChars + numel(data(i).text.str);
 end
 
 %%
 figure(1)
-hist3([p_d p_fa], [8 8])
-xlabel('p_d');
-ylabel('p_{fa}');
+x = min(lDist):max(lDist);
+h = hist(lDist,x);
+h = h/sum(h(:));
+hh = cumsum(h);
+bar(x,hh);
+xlabel('Levenshtein distance')
 
-%%
-figure(2)
-hist(hammingDist)
+accuracy = 1-sum(lDist)/allChars;
 
+fprintf('p_d = %f\np_fa = %f\naccuracy = %f\n', p_d, p_fa, accuracy);
