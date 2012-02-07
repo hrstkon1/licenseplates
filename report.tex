@@ -132,6 +132,15 @@ specified as
 Given the annotated data $\truth$, we seek the maximum-likelihood
 estimate \[ \optmodel = \argmax_{\model} \lhood(\truth \mid \model).\]
 
+Regardless, varying character widths are not fully accounted for in
+the \textbf{HMM}. As a fix, we chose to set the glyph template width
+as the median of all exemplars of the glyph in the training
+set. Exemplars were normalized to a common width and models were
+learned from the normalized glyphs.
+
+\jpnote{Need explanation of how filtering was accomplished. How were
+  emission probabilities calcuated with filtering}
+
 Learning a model for a glyph column comprises of learning the
 position-independent global foreground $ p(x_{ij}\mid
 c=f,s_j)=\mathcal{N}(\sigma_1,\mu_1)$ and background $p(x_{ij} \mid
@@ -141,6 +150,8 @@ Maximization is used where the priors $\gamma_{i,k_j}$ are estimated
 in the expectation step, and the parameters of the global foreground
 and background intensity models $\mu_1,\sigma_1,\mu_2,\sigma_2$ are
 estimated in the maximization step.
+
+\jpnote{Need equations for expectation step and maximization step.}
 
 \begin{figure}[htp]
 \centering
@@ -289,11 +300,7 @@ like each other when blurred.
 
 There was a significant variance of character width in the annotations
 of \texttt{np-images-5000.mat}. This could arise from annotation error
-or from errors in rectification. Regardless, varying character widths
-are not fully accounted for in the \textbf{HMM}. As a fix, we
-chose to set the glyph template width as the median of all exemplars
-of the glyph in the training set. Exemplars were normalized to a
-common width and models were learned from the normalized glyphs. To
+or from errors in rectification. To
 account for varying character widths in the test data, we allowed for 
 non-zero transitions to the same glyph column.  A further improvement
 would be to allow non-zero transitions between non-consecutive glyph
