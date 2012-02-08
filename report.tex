@@ -160,6 +160,8 @@ At M-step $i+1$ parameters of model $\model^{t+1}$ are maximized with respect to
   \sigma_1^{t+1} = \frac{\sum_{i,j} \sum_{d \in \mathcal{D}} x_{d, i,j} p(x_{ij} \mid c=f, s_j)_d^{t+1} }{\sum_{i,j} \sum_{d \in \mathcal{D}} p(x_{ij} \mid c=f, s_j)_d^{t+1}}
 \]
 The parameters $\sigma_2^{t+1}, \mu_1^{t+1}, \mu_2^{t+1}$ are calculated in similar way.
+
+The algorithm is stopped when condition $|1-\frac{\sigma_1^{t+1}}{\sigma_1^{t}}| < \epsilon \wedge |1-\frac{\sigma_2^{t+1}}{\sigma_2^{t}}| < \epsilon$ holds, where $\epsilon$ has been set to value $10^{-5}$.
 \jpnote{Need equations for expectation step and maximization step.}
 
 
