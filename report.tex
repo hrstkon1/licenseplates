@@ -135,23 +135,33 @@ estimate \[ \optmodel = \argmax_{\model} \lhood(\truth \mid \model).\]
 Regardless, varying character widths are not fully accounted for in
 the \textbf{HMM}. As a fix, we chose to set the glyph template width
 as the median of all exemplars of the glyph in the training
-set. Exemplars were normalized to a common width and models were
-learned from the normalized glyphs.
-
+set. Models were learned from exemplars with median width. Exemplars with different width were filtered out.
 \jpnote{Need explanation of how filtering was accomplished. How were
   emission probabilities calcuated with filtering}
+\ohnote{This is short but sufficient I think}
 
 Learning a model for a glyph column comprises of learning the
 position-independent global foreground $ p(x_{ij}\mid
 c=f,s_j)=\mathcal{N}(\sigma_1,\mu_1)$ and background $p(x_{ij} \mid
 c=b,s_j)=\mathcal{N}(\sigma_2,\mu_2)$ image intensity models, as well
 their position-dependent and glyph-dependent priors. Expectation
-Maximization is used where the priors $\gamma_{i,k_j}$ are estimated
-in the expectation step, and the parameters of the global foreground
-and background intensity models $\mu_1,\sigma_1,\mu_2,\sigma_2$ are
-estimated in the maximization step.
+Maximization is to learn these parameters.
 
+At E-step $t+1$ probability of each pixel $d$ from training dataset $d \in \mathcal{D}$ is calculated with respect to given model $\model^t$:
+\[
+  p(x_{ij} \mid c=f, s_j)_d^{t+1} = \frac{\mathcal{N}(\sigma_1^t,\mu_1^t)\gamma_{is_j}^t}{\mathcal{N}(\sigma_1^t,\mu_1^t)\gamma_{is_j}^t+\mathcal{N}(\sigma_2^t,\mu_2^t)(1-\gamma_{is_j}^t)}
+\]
+
+At M-step $i+1$ parameters of model $\model^{t+1}$ are maximized with respect to $p(x \mid c=f, s)^{t+1}$:
+\[
+  \gamma_{is_j}^{t+1} = \frac{\sum_{d \in \mathcal{D}} p(x_{ij} \mid c=f, s_j)_d^{t+1}}{\sum_{d \in \mathcal{D}} p(x_{ij} \mid c=f, s_j)_d^{t+1} + \sum_{d \in \mathcal{D}} (1-p(x_{ij} \mid c=b, s_j)_d^{t+1})}
+\]
+\[
+  \sigma_1^{t+1} = \frac{\sum_{i,j} \sum_{d \in \mathcal{D}} x_{d, i,j} p(x_{ij} \mid c=f, s_j)_d^{t+1} }{\sum_{i,j} \sum_{d \in \mathcal{D}} p(x_{ij} \mid c=f, s_j)_d^{t+1}}
+\]
+The parameters $\sigma_2^{t+1}, \mu_1^{t+1}, \mu_2^{t+1}$ are calculated in similar way.
 \jpnote{Need equations for expectation step and maximization step.}
+
 
 \begin{figure}[htp]
 \centering
