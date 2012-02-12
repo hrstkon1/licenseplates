@@ -11,7 +11,8 @@
 \usepackage{subfig}
 
 \newcommand{\lhood}{\ensuremath{\mathcal{L}}}
-\newcommand{\truth}{\ensuremath{\mathcal{T}}}
+\newcommand{\truth}{\ensuremath{\mathcal{D}}}
+\newcommand{\test}{\ensuremath{\mathcal{T}}}
 \newcommand{\model}{\ensuremath{\mathcal{M}}}
 \newcommand{\optmodel}{\ensuremath{\mathcal{M}^*}}
 
@@ -132,38 +133,51 @@ specified as
 Given the annotated data $\truth$, we seek the maximum-likelihood
 estimate \[ \optmodel = \argmax_{\model} \lhood(\truth \mid \model).\]
 
-Regardless, varying character widths are not fully accounted for in
-the \textbf{HMM}. As a fix, we chose to set the glyph template width
-as the median of all exemplars of the glyph in the training
-set. Models were learned from exemplars with median width. Exemplars with different width were filtered out.
-\jpnote{Need explanation of how filtering was accomplished. How were
-  emission probabilities calcuated with filtering}
-\ohnote{This is short but sufficient I think}
+There was a significant variance of character width in the annotations
+of \texttt{np-images-5000.mat}. This might be caused by annotation
+errors or from image-rectification errors. To account for glyph-width
+variance in the annotations during training, the median width for each
+glyph was calculated, and the subset of exemplars from the training
+set that matched the median width of a particular glyph were used to
+build the model for that glyph's columns. Exemplars that differed from
+teh median width were simply filtered out.
 
 Learning a model for a glyph column comprises of learning the
 position-independent global foreground $ p(x_{ij}\mid
-c=f,s_j)=\mathcal{N}(\sigma_1,\mu_1)$ and background $p(x_{ij} \mid
-c=b,s_j)=\mathcal{N}(\sigma_2,\mu_2)$ image intensity models, as well
-their position-dependent and glyph-dependent priors. Expectation
-Maximization is to learn these parameters.
+c=f,s_j)=\mathcal{N}(x_{ij};\sigma_1,\mu_1)$ and background $p(x_{ij}
+\mid c=b,s_j)=\mathcal{N}(x_{ij};\sigma_2,\mu_2)$ image intensity
+models, as well their position-dependent and glyph-dependent
+priors. The Expectation Maximization scheme is used to learn these
+parameters.
 
-At E-step $t+1$ probability of each pixel $d$ from training dataset $d \in \mathcal{D}$ is calculated with respect to given model $\model^t$:
+\subsection{Estimating parameters by EM}
+At the $t+1$ E-step, for each license plate $d$ in the annotated
+dataset \truth, the probability of intensity $x^d_{ij}$ of license $d$
+is calculated with respect to given model $\model^t$:
 \[
-  p(x_{ij} \mid c=f, s_j)_d^{t+1} = \frac{\mathcal{N}(\sigma_1^t,\mu_1^t)\gamma_{is_j}^t}{\mathcal{N}(\sigma_1^t,\mu_1^t)\gamma_{is_j}^t+\mathcal{N}(\sigma_2^t,\mu_2^t)(1-\gamma_{is_j}^t)}
+  p(x^d_{ij} \mid c=f, s_j)^{t+1} =
+  \frac{\mathcal{N}(x^d_{ij};\sigma_1^t,\mu_1^t)\gamma_{is_j}^t}{\mathcal{N}(x^d_{ij};\sigma_1^t,\mu_1^t)\gamma_{is_j}^t+\mathcal{N}(x^d_{ij};\sigma_2^t,\mu_2^t)(1-\gamma_{is_j}^t)}
 \]
 
-At M-step $i+1$ parameters of model $\model^{t+1}$ are maximized with respect to $p(x \mid c=f, s)^{t+1}$:
+At the $i+1$ M-step, the model parameters $\model^{t+1}$ are
+maximized with respect to $p(x \mid c=f, s)^{t+1}$:
 \[
-  \gamma_{is_j}^{t+1} = \frac{\sum_{d \in \mathcal{D}} p(x_{ij} \mid c=f, s_j)_d^{t+1}}{\sum_{d \in \mathcal{D}} p(x_{ij} \mid c=f, s_j)_d^{t+1} + \sum_{d \in \mathcal{D}} (1-p(x_{ij} \mid c=b, s_j)_d^{t+1})}
+  \gamma_{is_j}^{t+1} = \frac{\sum_{d \in \mathcal{D}} p(x_{ij} \mid
+    c=f, s_j)_d^{t+1}}{\sum_{d \in \mathcal{D}} p(x_{ij} \mid c=f,
+    s_j)_d^{t+1} + \sum_{d \in \mathcal{D}} (1-p(x_{ij} \mid c=b,
+    s_j)_d^{t+1})}
 \]
 \[
-  \sigma_1^{t+1} = \frac{\sum_{i,j} \sum_{d \in \mathcal{D}} x_{d, i,j} p(x_{ij} \mid c=f, s_j)_d^{t+1} }{\sum_{i,j} \sum_{d \in \mathcal{D}} p(x_{ij} \mid c=f, s_j)_d^{t+1}}
+  \sigma_1^{t+1} = \frac{\sum_{i,j} \sum_{d \in \mathcal{D}} x_{d,
+      i,j} p(x_{ij} \mid c=f, s_j)_d^{t+1} }{\sum_{i,j} \sum_{d \in
+      \mathcal{D}} p(x_{ij} \mid c=f, s_j)_d^{t+1}}
 \]
-The parameters $\sigma_2^{t+1}, \mu_1^{t+1}, \mu_2^{t+1}$ are calculated in similar way.
-
-The algorithm is stopped when condition $|1-\frac{\sigma_1^{t+1}}{\sigma_1^{t}}| < \epsilon \wedge |1-\frac{\sigma_2^{t+1}}{\sigma_2^{t}}| < \epsilon$ holds, where $\epsilon$ has been set to value $10^{-5}$.
-\jpnote{Need equations for expectation step and maximization step.}
-
+The parameters $\sigma_2^{t+1}, \mu_1^{t+1}, \mu_2^{t+1}$ are
+calculated analogously. Estimation alternates between E-step and
+M-step until the stopping condition
+$|1-\frac{\sigma_1^{t+1}}{\sigma_1^{t}}| < \epsilon \wedge
+|1-\frac{\sigma_2^{t+1}}{\sigma_2^{t}}| < \epsilon$ holds, where
+$\epsilon$ is set to $10^{-5}$.
 
 \begin{figure}[htp]
 \centering
@@ -185,23 +199,32 @@ column. Transitions to non-consecutive glyph columns and from
 non-terminal glyph columns to white-space are prohibited.
 
 Transition probabilities were also derived qualitatively from the
-data. For example, the expected value of the length of consecutive
-white-space characters was used to compute the probability of
-white-space to white-space transition.
+data. For example, the expected value of the length of white-space
+intervals $E[W]$ was empirically estimated to be about $10$ from the
+annotated data after image cropping, and the transition probability
+from white-space to white-space was set as follows 
+\[ 
+E[W] = \sum_{k=1}^\infty k\,p(X=k) = \sum_{k=1}^\infty k
+\,p(s_i=\text{w}y \,| s_{i-1})=\text{w})^k \implies p(s_i=\text{w} \,|
+s_{i-1}) = 2-\sqrt{\frac{4}{E[W]}}.
+\]
 
 \section{Inference}
-The hamming loss function is used for inference.  To find the most
-probable sequence $s$, the probabilities $p(x,s_i)$ are first computed
-by multiplying $p(x_1,\ldots,x_i,s_i)$ and
-$p(x_{i+1},\ldots,x_n|s_i)$, each of which can be computed dynamically
-in $\mathcal{O}(|K|^2n)$. As discussed above, the \textbf{HMM}
-contains transitions with zero probabilities. For example, we do not
-allow a transition from glyph column $A_5$ to white-space. Selecting
+The hamming loss function is used for inference. As discussed above,
+the HMM contains transitions with zero probabilities. For example, we
+do not allow a transition from glyph column $A_5$ to white-space.
+Care must be taken to avoid inferring invalid sequences of hidden
+states.  Finding a valid sequence of hidden states that minimizes risk
+under the hamming loss is equivalent to minimizing the expected
+hamming loss over the subset of hidden states that have non-zero
+transitions.  
+To find the most probable valid sequence $s$, the probabilities
+$p(x,s_i)$ are first computed by multiplying $p(x_1,\ldots,x_i,s_i)$
+and $p(x_{i+1},\ldots,x_n|s_i)$, each of which can be computed
+dynamically in $\mathcal{O}(|K|^2n)$. Selecting
 $k^*=\argmax_k{p(x,s_i=k)}$ for each $i$ could give a sequence $s$
-that is invalid. To prevent invalid sequences, we remove states that
-correspond to invalid transitions and select the valid sequence that
-maximizes the sum of joint probabilities $p(x,s_i)$. This is computed
-dynamically with complexity $\mathcal{O}(|K|n)$.
+that is invalid.  This is computed dynamically with complexity
+$\mathcal{O}(|K|n)$.
 
 \begin{figure}[h]
   \centering
@@ -219,23 +242,31 @@ dynamically with complexity $\mathcal{O}(|K|n)$.
 Performance was measured on the test set \texttt{np-images-5000.mat}
 consisting of 5000 annotated images of license plates.  Note that a
 subset of the test set was used for training emissions distributions
-too. Of interest is the quality of segmentation and accuracy of
-license-string identification.  
+too. Of interest is the quality of segmentation and the the accuracy of
+license-id inference.
 
-Correct segmentation of a character is defined to be an interval of
-columns given by the algorithm that intersects a region of the license
-plate annotated as character within a specified tolerance. A proper
-segmentation of the license plate is a sequence of correct character
-segmentations for all annotated character regions.  Segmentation
-errors occur if a character is nominated as white-space, a
-\emph{missed detection}; or, conversely, white-space is nominated as a
-character, a \emph{false alarm}.
+Correct segmentation of a character occurs when an interval of columns
+inferred by the HMM as a character, called an \emph{inferred character
+  region}, sufficiently overlaps an interval of columns annotated by
+hand as a character, called an \emph{annotated character region}. A
+correct segmentation of the license plate occurs when all annotated
+characters regions are segmented correctly. Given license plate $k$ in
+test set \test, an annotated white-space or character region $i$
+of license plate $k$, denoted $R^k_i$, is said to be sufficiently
+overlapped by an inferred character region of license plate $k$,
+denoted $\hat{R^k_j}$, if
 
-The probability of detection $p_d$ is defined as the ratio of correctly
-identified character regions to total number of annotated character regions
-and the probability of false alarm $p_{fa}$ is identified as the number
-of annotated white-space regions nominated as character regions to the
-total number annotated white-space regions.
+\[
+\left|1-\frac{|R^k_i \cap \hat{R}^k_j|}{|R^k_i|}\right| < 0.15
+\] 
+
+The probability of detection $p_d$ is defined as the ratio of correct
+segmentations to the total number of annotated character regions in
+the test set. The probability of false alarm $p_{fa}$ is defined as
+the number of annotated white-space regions that are inferred as
+character regions by the HMM to the total number annotated white-space
+regions. Results for \texttt{np-images-5000.mat} are given in Table
+\ref{table:segmentation}.
 
 \begin{table}[ht]
 \begin{center}
@@ -248,15 +279,16 @@ total number annotated white-space regions.
   \hline
 \end{tabular}
 \caption{Calculated for \texttt{np-images-5000.mat}}
+\label{table:segmentation}
 \end{center}
 \end{table}
 
 We require a metric on strings so that closeness of the inferred
-\emph{vehicle-id} to the annotated \emph{vehicle-id} can be
-measured. The Lenvenstein distance function $L$ between two strings is
-defined as the minimum number of edits needed to transform one string
-into the other, with the allowable edit operations being insertion,
-deletion, or substitution of a single character. 
+vehicle-id to the annotated vehicle-id can be measured. The
+Lenvenstein distance function $d_L$ between two strings is defined as
+the minimum number of edits needed to transform one string into the
+other, with the allowable edit operations being insertion, deletion,
+or substitution of a single character.
 
 \begin{figure}[ht]
 \begin{center}
@@ -266,13 +298,13 @@ deletion, or substitution of a single character.
 \end{center}
 \end{figure}
 
-To determine the accuracy of the estimated \emph{vehicle-ids} for the
+To determine the accuracy of the estimated vehicle-ids for the
 \texttt{np-images-5000.mat} test set, the expected Levenstein distance
-between inferred id and ground-truth id is computed for all 5000
-images.
+between inferred vehicle-id and annotated vehicle-id is computed for
+all 5000 images.
 
-\[ \text{accuracy} = \frac{\sum_{k \in \mathcal{U}}
-  L(\hat{id}_k,id_k)}{8|\mathcal{U}|} \qquad U \text{ is test set
+\[ \text{accuracy} = \frac{\sum_{k \in \test}
+  d_L(\hat{id}_k,id_k)}{7|\test|} \qquad \test \text{ is test set
   \texttt{np-images-5000.mat} }  \]
 
 \begin{table}[ht]
@@ -290,39 +322,59 @@ images.
 
 \section{Analysis and Suggested Improvements}
 The performance, as suggested by the evaluation above, is not suitable
-for operational use. The \textbf{HMM} used made many assumptions, so
-there are many improvements to consider for better performance. As
-expected, the \textbf{HMM} works best on clean exemplars from the data
-set.
-
-Most problematic is the overlap and large variance of the global
-intensity models (see figure \ref{fig:distribution}) estimated during
-training. Ideally, without de-focus blur and image artifacts, since the
-image plate is high contrast, there should be two well-separated
-distributions each with smaller variance. To account for image
-corruption, more than two classes might be used to classify
-intensities that are neither distinctly part of foreground or
-background.
-
-The transition model is too simple to account for cases caused by blur
-where there is no apparent white space between characters, or the
-character appears wider than our template. Furthermore, characters
-such as \texttt{4} and \texttt{A}, and \texttt{0} and \texttt{D} look
-like each other when blurred.
+for operational use. The HMM made many assumptions, some of which were
+adopted to speed development; thus, there are many improvements to
+consider for better performance. As expected, the HMM works best on
+clean and typical exemplars from the test set.
 
 There was a significant variance of character width in the annotations
-of \texttt{np-images-5000.mat}. This could arise from annotation error
-or from errors in rectification. To
-account for varying character widths in the test data, we allowed for 
-non-zero transitions to the same glyph column.  A further improvement
-would be to allow non-zero transitions between non-consecutive glyph
-columns. 
+of \texttt{np-images-5000.mat}. This might be caused by annotation
+errors or from image-rectification errors. As previously discussed, to
+account for glyph-width variance in the annotations during testing,
+the median width for each glyph was calculated, and the subset of
+exemplars from the test set that matched the median width of a
+particular glyph were used to build the model for that glyph's
+columns. Although expedient for development, throwing away problematic
+annotations meant that our templates would not be representative of
+some of the badly conditioned data. Inference was sure to suffer
+because of this design choice. An improvement would be to normalize
+the characters to a canonical coordinate system and learn mixture
+parameters in this representation.
+
+To account for varying character widths during inference, we allowed
+for non-zero transitions to the same glyph column.  This allowance
+enables the inference algorithm to cope with characters that are wider
+than the template. Because of the difficulty in choosing appropriate
+transition probabilities, we chose to prohibit non-zero transitions to
+non-consecutive glyph columns. Easing this restriction would enable
+the inference algorithm to robustly cope with characters narrower than
+the template and would likely have a significant performance benefit.
+
+The transition model does not account for cases where there is no
+apparent white space between characters, which happens when there is
+significant blur. Additionally, we did not create a template for
+hyphens which occur in a significant number of the license
+plates. Explicit modeling of the two aforementioned cases would likely
+eliminate some of the more obvious segmentation errors.
 
 Setting the transition probabilities manually was guided by some
-simple observations of the training set. It is inevitable that we
-missed some interactions in the data. Moving to supervised
-learning to set the transition probabilities would likely capture
-relations in the data that were overlooked. 
+simple observations from the training set. It is inevitable that we
+missed some interactions in the data. Moving to supervised learning to
+set the transition probabilities would likely capture relations in the
+data that were overlooked.
 
+Perhaps most problematic is the overlap and large variance of the
+global intensity models (see Figure \ref{fig:distribution}) estimated
+during training. Ideally, without de-focus blur and image artifacts,
+since the license plate is a high contrast object, there should be two
+well-separated intensity distributions, each with smaller variance. To
+account for image corruption, more than two classes might be used to
+classify intensities that are neither distinctly part of foreground
+nor background.
+
+Lastly, there was no explicit model created for the license plate
+string. In other the words, prior information on the expected number
+of characters, or the expected location of white space and hyphens was
+not included. It is likely that these hard constraints would
+dramatically improve performance. 
 \end{document}
-
