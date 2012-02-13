@@ -33,39 +33,71 @@
 
 \begin{frame}
   \frametitle{Problem statement}
+
+\begin{itemize}
 \item[Task] Report the unique identifying string of characters, called
   the \emph{vehicle-id}, from the image of a license plate.
 
 \item[Input] Images of license plates that have been segmented and
   ortho-rectified.
+\end{itemize}
+
 \end{frame}
 
 \begin{frame}
   \frametitle{Assumptions about data}
+\begin{itemize}
 \item The font of all characters across license plates is identical.
 \item Examplars of a particular character are the same width (we relax this restriction later).
 \item All characters have the same height.
 \item There is significant white space between adjacent characters.
+\end{itemize}
+\end{frame}
+
+\section{Model Definition}
+\begin{frame}
+  \frametitle{Hidden Markov Model}
+\begin{description}
+\item[Observations] The left-to-right sequence of consecutive intensity columns from
+  the segmented image of the license plate.
+
+\item[Hidden States] The set $\mathbf{K}$ of column
+  indexes of all the glyphs in the font set and an added state \texttt{w}
+  that represents white-space
+\[S =
+\left(\,\dots,\texttt{w},\texttt{A}_1,\texttt{A}_2,\ldots,\texttt{A}_{m},\texttt{w},\texttt{w},\texttt{w},\texttt{T}_1,\texttt{T}_2,\ldots\,\right).\]
+
+\item[Emissions] The probabilities of observing pixel
+  intensities given their corresponding glyph column, or,
+  equivalently, given their \emph{hidden states}.
+
+\end{description}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Hidden Markov Model}
+  \frametitle{Emission Probabilities}
 
-\item The left-to-right sequence of consecutive intensity columns from
-  the segmented image of the license plate are the
-  \emph{observations}.
+\item[Pairwise independence] probabilities of observing intensities in
+  a column $\mathbf{x}_j$ are uncorrelated.
 
-\item The set of \emph{hidden states} $\mathbf{K}$ are the column
-  indexes of all the glyphs in the font set and an added state $w$
-  that represents white-space.
+  \[p(\mathbf{x}_j \mid s_j) = \prod_{i=1}^np(x_{ij} \mid s_j).\] 
 
-\[S =
-\left(\,\dots,\text{w},\text{A}_1,\text{A}_2,\ldots,\text{A}_{m},\text{w},\text{w},\text{w},\text{T}_1,\text{T}_2,\ldots\,\right).\]
+The probability of observing
+  pixel intensity $x_{ij}$ of a glyph column $s_j$ is modeled as a
+  two-class gaussian mixture, where the first class $c=f$ contains
+  foreground pixels, and the second class $c=b$ contains background
+  pixels,
 
-
-\item The \emph{emission probabilities} are the probabilities of
-  observing pixel intensities given their corresponding glyph column,
-  or, equivalently, given their \emph{hidden states}
+\begin{align*}
+  p(x_{ij} \mid s_j) &= p(x_{ij},c=f \mid s_j)+p(x_{ij},c=b \mid s_j)\\
+  &= p(x_{ij}\mid c=f,s_j)p(c=f \mid s_j)+p(x_{ij} \mid c=b,s_j)p(c=b \mid s_j) \\
+  &= p(x_{ij}\mid c=f)p(c=f \mid s_j)+p(x_{ij} \mid c=b)p(c=b \mid s_j) \\
+  &= \mathcal{N}(\sigma_1,\mu_1)\gamma_{is_j}+\mathcal{N}(\sigma_2,\mu_2)(1-\gamma_{is_j}).
+\end{align*}
+The model for \emph{emissions probabilities} assumes that the
+foreground and background distributions are position independent,
+while the mixture parameter depends on the row position of the glyph
+column $s_j$.
 
 \end{frame}
 
