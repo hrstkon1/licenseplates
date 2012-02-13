@@ -8,6 +8,8 @@
 
 \usepackage{palatino}
 \usepackage{graphicx}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\newcommand{\test}{\ensuremath{\mathcal{T}}}
 
 \AtBeginSection[]
 {
@@ -77,28 +79,22 @@
 \begin{frame}
   \frametitle{Emission Probabilities}
 
-\item[Pairwise independence] probabilities of observing intensities in
+\begin{description}
+\item[Row Independence] probabilities of observing intensities in
   a column $\mathbf{x}_j$ are uncorrelated.
 
   \[p(\mathbf{x}_j \mid s_j) = \prod_{i=1}^np(x_{ij} \mid s_j).\] 
 
-The probability of observing
-  pixel intensity $x_{ij}$ of a glyph column $s_j$ is modeled as a
-  two-class gaussian mixture, where the first class $c=f$ contains
-  foreground pixels, and the second class $c=b$ contains background
-  pixels,
+\item[Mixture Model] probability of observing pixel intensity $x_{ij}$
+  of a glyph column $s_j$ is modeled as a two-class gaussian mixture.
 
-\begin{align*}
-  p(x_{ij} \mid s_j) &= p(x_{ij},c=f \mid s_j)+p(x_{ij},c=b \mid s_j)\\
-  &= p(x_{ij}\mid c=f,s_j)p(c=f \mid s_j)+p(x_{ij} \mid c=b,s_j)p(c=b \mid s_j) \\
-  &= p(x_{ij}\mid c=f)p(c=f \mid s_j)+p(x_{ij} \mid c=b)p(c=b \mid s_j) \\
-  &= \mathcal{N}(\sigma_1,\mu_1)\gamma_{is_j}+\mathcal{N}(\sigma_2,\mu_2)(1-\gamma_{is_j}).
-\end{align*}
-The model for \emph{emissions probabilities} assumes that the
-foreground and background distributions are position independent,
-while the mixture parameter depends on the row position of the glyph
-column $s_j$.
+\[
+\mathcal{N}(x_{ij};\sigma_1,\mu_1)\gamma_{is_j}+\mathcal{N}(x_{ij};\sigma_2,\mu_2)(1-\gamma_{is_j})
+\]
+\end{description} 
 
+**Note that the foreground and background distributions are position
+independent.
 \end{frame}
 
 \section{Learning the model}
@@ -188,23 +184,48 @@ column $s_j$.
 \end{figure}
 \end{frame}
 
-
-
-
 \begin{frame}
   \frametitle{Setting the transition probabilities}
-  JAMES
+\begin{itemize}
+\item Permitted transitions were set by hand and derived qualitatively
+  from the data
+\item Transitions include white-space to white-space, white-space to
+  first glyph columns, between consecutive glyph columns, between
+  terminal glyph columns and white-space.
+\item allow transitions to the same glyph column. Transitions to
+  non-consecutive glyph columns and from non-terminal glyph columns to
+  white-space are prohibited.
+\end{itemize}
+
+The white-space to white-space transitions can be calculated as follows
+
+\[ 
+ p(s_i=\text{w} \,|s_{i-1}) = 2-\sqrt{\frac{4}{E[W]}}.
+\]
 \end{frame}
 
 
 \begin{frame}
   \frametitle{Inference}
-  JAMES
+\begin{itemize}
+\item  The hamming loss function is used for risk assessment.
+\item HMM contains transitions with zero probabilities. 
+\item  Finding a valid sequence of hidden states that minimizes risk
+under the hamming loss is equivalent to minimizing the expected
+hamming loss over the subset of hidden states that have non-zero
+transitions.  
+\[ 
+\argmax_{s \in \rho} \sum_{i=1}^n p(x,s_i) \qquad \text{where } \rho =
+       \{\, s \mid p(s) > 0 \,\} \subset K^n
+\]
+\item Inference algorithm is $\mathcal{O}(2|K|^2n)$ + $\mathcal{O}(|K|n)$
+\end{itemize}
+  
 \end{frame}
 
 \section{Evaluation}
 \begin{frame}
-  \frametitle{Evaluation}
+  \frametitle{Good results}
 
 \begin{figure}
   \centering
@@ -224,22 +245,50 @@ column $s_j$.
 \end{frame}
 
 \begin{frame}
-  \frametitle{Segmentation Performance \& Accuracy}
-  
+  \frametitle{Segmentation metric}
+\begin{description}
+\item[correct segmentation] occurs when an \emph{inferred character
+  region} sufficiently overlaps an \emph{annotated character region}
+\item[overlap]
+\[
+\left|1-\frac{|R^k_i \cap \hat{R}^k_j|}{|R^k_i|}\right| < 0.15
+\]   
+\item[prob of detection] ($p_d$) the ratio of correct segmentations to
+  the total number of annotated character regions in the test set.
+\item[prob of false alarm] ($p_{fa}$) the ratio of annotated
+  white-space regions that are inferred as character regions to the
+  total number annotated white-space regions.
+\end{description}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Segmentation performance}
   \begin{table}[ht]
-\begin{center}
-\begin{tabular}{|l|l|}
-  \hline
-  \multicolumn{2}{|c|}{Segmentation Performance} \\
-  \hline
-  $p_d$ & 71.9\% \\
-  $p_{fa}$ & 7.60\% \\
-  \hline
-\end{tabular}
-\caption{Calculated for \texttt{np-images-5000.mat}}
-\label{table:segmentation}
-\end{center}
-\end{table}
+    \begin{center}
+      \begin{tabular}{|l|l|}
+        \hline
+        \multicolumn{2}{|c|}{Segmentation Performance} \\
+        \hline
+        $p_d$ & 71.9\% \\
+        $p_{fa}$ & 7.60\% \\
+        \hline
+      \end{tabular}
+      \caption{Calculated for \texttt{np-images-5000.mat}}
+      \label{table:segmentation}
+    \end{center}
+  \end{table}
+\end{frame}
+
+\begin{frame}
+\frametitle{Inference accuracy}
+\begin{description}
+\item[Levenshtein distance] minimum number of edits needed to transform one string into the
+other, with the allowable edit operations being insertion, deletion,
+or substitution of a single character.
+
+\[ \text{accuracy} = \frac{\sum_{k \in \test}
+  d_L(\hat{id}_k,id_k)}{7|\test|} \qquad \test \text{ is test set }  \]
+\end{description}
 
 \begin{table}[ht]
 \begin{center}
@@ -268,7 +317,23 @@ column $s_j$.
 \end{frame}
 
 \begin{frame}
-  \frametitle{Conclusions}
+  \frametitle{Identified Problems}
+\begin{itemize}
+\item not suitable for operational use.
+\item throwing away problematic annotations means that our templates
+  are not be representative of some of the badly conditioned data.
+\item prohibited non-zero transitions to non-consecutive glyph
+  columns.
+\item The transition model does not account for cases where there is
+  no apparent white space between characters.
+\item did not create a template for hyphens which occur in a
+  significant number of the license plates.
+\item Need supervised learning
+\item There as a large overlap and large variance of the global
+  intensity models (see Figure \ref{fig:distribution}) estimated
+  during training.
+\item no explicit model created for the license plate string.
+\end{itemize}
 \end{frame}
 
 \end{document}
