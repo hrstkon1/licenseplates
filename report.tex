@@ -39,7 +39,7 @@
  \vspace{10mm} {\bf Identifying License Plates Ids with Hidden Markov
     Models } }
 \author{\normalsize James Pritts and Ondrej Hrstka }
-\date{ \small January 2012 }
+\date{ \small February 13, 2012 }
 
 \begin{document}
 \maketitle
@@ -218,14 +218,19 @@ states.  Finding a valid sequence of hidden states that minimizes risk
 under the hamming loss is equivalent to minimizing the expected
 hamming loss over the subset of hidden states that have non-zero
 transitions.  
-To find the most probable valid sequence $s$, the probabilities
-$p(x,s_i)$ are first computed by multiplying $p(x_1,\ldots,x_i,s_i)$
-and $p(x_{i+1},\ldots,x_n|s_i)$, each of which can be computed
-dynamically in $\mathcal{O}(|K|^2n)$. Selecting
-$k^*=\argmax_k{p(x,s_i=k)}$ for each $i$ could give a sequence $s$
-that is invalid.  This is computed dynamically with complexity
-$\mathcal{O}(|K|n)$.
 
+\[ 
+\argmax_{s \in \rho} \sum_{i=1}^n p(x,s_i) \qquad \text{where } \rho =
+       \{\, s \mid p(s) > 0 \,\} \subset K^n
+\]
+
+The probabilities $p(x,s_i)$ are computed by multiplying
+$p(x_1,\ldots,x_i,s_i)$ and $p(x_{i+1},\ldots,x_n|s_i)$, each of which
+can be computed dynamically in $\mathcal{O}(|K|^2n)$. Finding a valid
+sequence that maximizes the sum of marginals over each column is done
+by a shortest path algorithm, which has running time
+$\mathcal{O}(|K|n)$.
+ 
 \begin{figure}[h]
   \centering
   \subfloat[correct id]{\label{fig:PBL2432}\includegraphics[width=0.3\textwidth]{matlab/lic_PBL2432.eps}}                
