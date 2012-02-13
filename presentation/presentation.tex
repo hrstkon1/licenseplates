@@ -20,7 +20,7 @@
 \title{Identifying License Plates Ids with Hidden Markov
     Models}
 \author{ James Pritts and Ondrej Hrstka }
-\institute[CTU FEE]{Czech technical university - Faculty of Electrical Engineering}
+\institute[CTU FEE]{Czech Technical University in Prague - Faculty of Electrical Engineering}
 \date{13.2.2012}
 
 \begin{document}
@@ -89,6 +89,23 @@
 \end{frame}
 
 \begin{frame}
+  \frametitle{Difficult data}
+\begin{figure}
+\includegraphics[width=0.8\linewidth]{pics/bad1.eps}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.8\linewidth]{pics/bad2.eps}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.8\linewidth]{pics/bad3.eps}
+\end{figure}
+
+\end{frame}
+
+
+\begin{frame}
   \frametitle{Learning the emission probabilities}
 	Emission probabilities of the model were learened using EM algorithm.
   
@@ -98,17 +115,23 @@
   \frametitle{Learning the emission probabilities}
 \begin{block}{E-step}
 	\[
-  p(x_{ij} \mid c=f, s_j)_d^{t+1} = \frac{\mathcal{N}(\sigma_1^t,\mu_1^t)\gamma_{is_j}^t}{\mathcal{N}(\sigma_1^t,\mu_1^t)\gamma_{is_j}^t+\mathcal{N}(\sigma_2^t,\mu_2^t)(1-\gamma_{is_j}^t)}
+  p^{t+1}(x^d_{ij} \mid c=f, s_j) =
+  \frac{\mathcal{N}(x^d_{ij};\sigma_1^t,\mu_1^t)\gamma_{is_j}^t}{\mathcal{N}(x^d_{ij};\sigma_1^t,\mu_1^t)\gamma_{is_j}^t+\mathcal{N}(x^d_{ij};\sigma_2^t,\mu_2^t)(1-\gamma_{is_j}^t)}
 \]
 	\end{block}
 
 \begin{block}{M-step}
 \[
-  \gamma_{is_j}^{t+1} = \frac{\sum_{d \in \mathcal{D}} p(x_{ij} \mid c=f, s_j)_d^{t+1}}{\sum_{d \in \mathcal{D}} p(x_{ij} \mid c=f, s_j)_d^{t+1} + \sum_{d \in \mathcal{D}} (1-p(x_{ij} \mid c=b, s_j)_d^{t+1})}
+  \gamma_{is_j}^{t+1} = \frac{\sum_{d \in \mathcal{D}} p^{t+1}(x^d_{ij} \mid
+    c=f, s_j)}{\sum_{d \in \mathcal{D}} p^{t+1}(x^d_{ij} \mid c=f,
+    s_j) + \sum_{d \in \mathcal{D}} (1-p^{t+1}(x^d_{ij} \mid c=b,
+    s_j))}
 \]
 \[
-  \sigma_1^{t+1} = \frac{\sum_{i,j} \sum_{d \in \mathcal{D}} x_{d, i,j} p(x_{ij} \mid c=f, s_j)_d^{t+1} }{\sum_{i,j} \sum_{d \in \mathcal{D}} p(x_{ij} \mid c=f, s_j)_d^{t+1}}
-\]  
+  \sigma_1^{t+1} = \frac{\sum_{i,j} \sum_{d \in \mathcal{D}} x^d_{
+      ij} p^{t+1}(x^d_{ij} \mid c=f, s_j)}{\sum_{i,j} \sum_{d \in
+      \mathcal{D}} p^{t+1}(x^d_{ij} \mid c=f, s_j)}
+\]
 \end{block}  
 \end{frame}
 
