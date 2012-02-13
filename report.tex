@@ -45,7 +45,7 @@
 \maketitle
 
 \pagestyle{empty} 
-\section*{1. DRAFT}
+
 \section{Problem Statement}
 The problem is to report the unique identifying string of characters,
 called the \emph{vehicle-id}, of a license plate.  Provided are images
@@ -205,7 +205,7 @@ annotated data after image cropping, and the transition probability
 from white-space to white-space was set as follows 
 \[ 
 E[W] = \sum_{k=1}^\infty k\,p(X=k) = \sum_{k=1}^\infty k
-\,p(s_i=\text{w}y \,| s_{i-1})=\text{w})^k \implies p(s_i=\text{w} \,|
+\,p(s_i=\text{w} \,| s_{i-1})=\text{w})^k \implies p(s_i=\text{w} \,|
 s_{i-1}) = 2-\sqrt{\frac{4}{E[W]}}.
 \]
 
