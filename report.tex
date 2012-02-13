@@ -155,22 +155,22 @@ At the $t+1$ E-step, for each license plate $d$ in the annotated
 dataset \truth, the probability of intensity $x^d_{ij}$ of license $d$
 is calculated with respect to given model $\model^t$:
 \[
-  p(x^d_{ij} \mid c=f, s_j)^{t+1} =
+  p^{t+1}(x^d_{ij} \mid c=f, s_j) =
   \frac{\mathcal{N}(x^d_{ij};\sigma_1^t,\mu_1^t)\gamma_{is_j}^t}{\mathcal{N}(x^d_{ij};\sigma_1^t,\mu_1^t)\gamma_{is_j}^t+\mathcal{N}(x^d_{ij};\sigma_2^t,\mu_2^t)(1-\gamma_{is_j}^t)}
 \]
 
 At the $i+1$ M-step, the model parameters $\model^{t+1}$ are
-maximized with respect to $p(x \mid c=f, s)^{t+1}$:
+maximized with respect to $p^{t+1}(x \mid c=f, s)$:
 \[
-  \gamma_{is_j}^{t+1} = \frac{\sum_{d \in \mathcal{D}} p(x_{ij} \mid
-    c=f, s_j)_d^{t+1}}{\sum_{d \in \mathcal{D}} p(x_{ij} \mid c=f,
-    s_j)_d^{t+1} + \sum_{d \in \mathcal{D}} (1-p(x_{ij} \mid c=b,
-    s_j)_d^{t+1})}
+  \gamma_{is_j}^{t+1} = \frac{\sum_{d \in \mathcal{D}} p^{t+1}(x^d_{ij} \mid
+    c=f, s_j)}{\sum_{d \in \mathcal{D}} p^{t+1}(x^d_{ij} \mid c=f,
+    s_j) + \sum_{d \in \mathcal{D}} (1-p^{t+1}(x^d_{ij} \mid c=b,
+    s_j))}
 \]
 \[
-  \sigma_1^{t+1} = \frac{\sum_{i,j} \sum_{d \in \mathcal{D}} x_{d,
-      i,j} p(x_{ij} \mid c=f, s_j)_d^{t+1} }{\sum_{i,j} \sum_{d \in
-      \mathcal{D}} p(x_{ij} \mid c=f, s_j)_d^{t+1}}
+  \sigma_1^{t+1} = \frac{\sum_{i,j} \sum_{d \in \mathcal{D}} x^d_{
+      ij} p^{t+1}(x^d_{ij} \mid c=f, s_j)}{\sum_{i,j} \sum_{d \in
+      \mathcal{D}} p^{t+1}(x^d_{ij} \mid c=f, s_j)}
 \]
 The parameters $\sigma_2^{t+1}, \mu_1^{t+1}, \mu_2^{t+1}$ are
 calculated analogously. Estimation alternates between E-step and
