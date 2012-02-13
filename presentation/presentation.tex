@@ -160,7 +160,66 @@ character of the font set as a glyph.
 \section{Evaluation}
 \begin{frame}
   \frametitle{Evaluation}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.6\textwidth]{pics/lic_PBL2432.eps}          
+\end{figure}  
   
+\begin{figure}
+  \centering
+  \includegraphics[width=0.6\textwidth]{pics/lic_KLL72D8.eps}
+\end{figure}  
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.6\textwidth]{pics/lic_1A1Z713.eps}
+\end{figure}    
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Segmentation Performance \& Accuracy}
+  
+  \begin{table}[ht]
+\begin{center}
+\begin{tabular}{|l|l|}
+  \hline
+  \multicolumn{2}{|c|}{Segmentation Performance} \\
+  \hline
+  $p_d$ & 71.9\% \\
+  $p_{fa}$ & 7.60\% \\
+  \hline
+\end{tabular}
+\caption{Calculated for \texttt{np-images-5000.mat}}
+\label{table:segmentation}
+\end{center}
+\end{table}
+
+\begin{table}[ht]
+\begin{center}
+\begin{tabular}{|l|l|}
+  \hline
+  \multicolumn{2}{|c|}{ID accuracy} \\
+  \hline
+  $accuracy$ & 36.5\% \\
+  \hline
+\end{tabular}
+\caption{Calculated for \texttt{np-images-5000.mat}}
+\end{center}
+\end{table} 
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Levenshtein distance}
+  \begin{figure}
+\begin{center}
+\includegraphics[width=0.75\linewidth]{pics/hamming.eps}
+\caption{ Frequency of edit distance over \texttt{np-images-5000.mat}  } 
+\label{fig:editdistance}
+\end{center}
+\end{figure}
 \end{frame}
 
 \begin{frame}
