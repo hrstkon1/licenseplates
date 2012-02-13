@@ -33,27 +33,40 @@
 
 \begin{frame}
   \frametitle{Problem statement}
-JAMES  
-  
-  The problem is to report the unique identifying string of characters,
-called the \emph{vehicle-id}, of a license plate.  Provided are images
-of license plates that have been segmented and ortho-rectified. A
-subset of these images each have the following corresponding
-annotations: a top and bottom boundary that delimits the
-\emph{vehicle-id} within the segmented license plate, a bounding box
-of each character and white-space interval that comprises the
-\emph{vehicle-id}, and a character label for each bounding box that
-contains a character.  We assume that the font of all characters
-across license plates is identical, and we refer to a particular
-character of the font set as a glyph.
+\item[Task] Report the unique identifying string of characters, called
+  the \emph{vehicle-id}, from the image of a license plate.
 
+\item[Input] Images of license plates that have been segmented and
+  ortho-rectified.
 \end{frame}
 
 \begin{frame}
-  \frametitle{Model definition}
-  JAMES
+  \frametitle{Assumptions about data}
+\item The font of all characters across license plates is identical.
+\item Examplars of a particular character are the same width (we relax this restriction later).
+\item All characters have the same height.
+\item There is significant white space between adjacent characters.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Hidden Markov Model}
+
+\item The left-to-right sequence of consecutive intensity columns from
+  the segmented image of the license plate are the
+  \emph{observations}.
+
+\item The set of \emph{hidden states} $\mathbf{K}$ are the column
+  indexes of all the glyphs in the font set and an added state $w$
+  that represents white-space.
+
 \[S =
 \left(\,\dots,\text{w},\text{A}_1,\text{A}_2,\ldots,\text{A}_{m},\text{w},\text{w},\text{w},\text{T}_1,\text{T}_2,\ldots\,\right).\]
+
+
+\item The \emph{emission probabilities} are the probabilities of
+  observing pixel intensities given their corresponding glyph column,
+  or, equivalently, given their \emph{hidden states}
+
 \end{frame}
 
 \section{Learning the model}
