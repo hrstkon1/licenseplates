@@ -99,7 +99,7 @@ pixels,
   p(x_{ij} \mid s_j) &= p(x_{ij},c=f \mid s_j)+p(x_{ij},c=b \mid s_j)\\
   &= p(x_{ij}\mid c=f,s_j)p(c=f \mid s_j)+p(x_{ij} \mid c=b,s_j)p(c=b \mid s_j) \\
   &= p(x_{ij}\mid c=f)p(c=f \mid s_j)+p(x_{ij} \mid c=b)p(c=b \mid s_j) \\
-  &= \mathcal{N}(\sigma_1,\mu_1)\gamma_{is_j}+\mathcal{N}(\sigma_2,\mu_2)(1-\gamma_{is_j}).
+  &= \mathcal{N}(x_{ij};\sigma_1,\mu_1)\gamma_{is_j}+\mathcal{N}(x_{ij};\sigma_2,\mu_2)(1-\gamma_{is_j}).
 \end{align*}
 The model for \emph{emissions probabilities} assumes that the
 foreground and background distributions are position independent,
