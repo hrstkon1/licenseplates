@@ -155,28 +155,25 @@ At the $t+1$ E-step, for each license plate $d$ in the annotated
 dataset \truth, the probability of intensity $x^d_{ij}$ of license $d$
 is calculated with respect to given model $\model^t$:
 \[
-  p^{t+1}(x^d_{ij} \mid c=f, s_j) =
+  p^{t+1}( c=f \mid x^d_{ij}, s_j) =
   \frac{\mathcal{N}(x^d_{ij};\sigma_1^t,\mu_1^t)\gamma_{is_j}^t}{\mathcal{N}(x^d_{ij};\sigma_1^t,\mu_1^t)\gamma_{is_j}^t+\mathcal{N}(x^d_{ij};\sigma_2^t,\mu_2^t)(1-\gamma_{is_j}^t)}
 \]
 
 At the $i+1$ M-step, the model parameters $\model^{t+1}$ are
-maximized with respect to $p^{t+1}(x \mid c=f, s)$:
+maximized with respect to $p^{t+1}( c=f \mid x^d_{ij}, s_j)$:
 \[
-  \gamma_{is_j}^{t+1} = \frac{\sum_{d \in \mathcal{D}} p^{t+1}(x^d_{ij} \mid
-    c=f, s_j)}{\sum_{d \in \mathcal{D}} p^{t+1}(x^d_{ij} \mid c=f,
-    s_j) + \sum_{d \in \mathcal{D}} (1-p^{t+1}(x^d_{ij} \mid c=b,
-    s_j))}
+  \gamma_{is_j}^{t+1} = \frac{\sum_{d \in \mathcal{D}} p^{t+1}( c=f \mid x^d_{ij}, s_j)}{\sum_{d \in \mathcal{D}} p^{t+1}( c=f \mid x^d_{ij}, s_j)+ \sum_{d \in \mathcal{D}} (1-p^{t+1}( c=f \mid x^d_{ij}, s_j))}
 \]
 \[
-  \sigma_1^{t+1} = \frac{\sum_{i,j} \sum_{d \in \mathcal{D}} x^d_{
-      ij} p^{t+1}(x^d_{ij} \mid c=f, s_j)}{\sum_{i,j} \sum_{d \in
-      \mathcal{D}} p^{t+1}(x^d_{ij} \mid c=f, s_j)}
+  \mu_1^{t+1} = \frac{\sum_{i,j} \sum_{d \in \mathcal{D}} x^d_{
+      ij} p^{t+1}( c=f \mid x^d_{ij}, s_j)}{\sum_{i,j} \sum_{d \in
+      \mathcal{D}} p^{t+1}( c=f \mid x^d_{ij}, s_j)}
 \]
-The parameters $\sigma_2^{t+1}, \mu_1^{t+1}, \mu_2^{t+1}$ are
+The parameters $\mu_2^{t+1}, \sigma_1^{t+1}, \sigma_2^{t+1}$ are
 calculated analogously. Estimation alternates between E-step and
 M-step until the stopping condition
-$|1-\frac{\sigma_1^{t+1}}{\sigma_1^{t}}| < \epsilon \wedge
-|1-\frac{\sigma_2^{t+1}}{\sigma_2^{t}}| < \epsilon$ holds, where
+$|1-\frac{\mu_1^{t+1}}{\mu_1^{t}}| < \epsilon \wedge
+|1-\frac{\mu_2^{t+1}}{\mu_2^{t}}| < \epsilon$ holds, where
 $\epsilon$ is set to $10^{-5}$.
 
 \begin{figure}[htp]
@@ -206,7 +203,7 @@ from white-space to white-space was set as follows
 \[ 
 E[W] = \sum_{k=1}^\infty k\,p(X=k) = \sum_{k=1}^\infty k
 \,p(s_i=\text{w} \,| s_{i-1})=\text{w})^k \implies p(s_i=\text{w} \,|
-s_{i-1}) = 2-\sqrt{\frac{4}{E[W]}}.
+s_{i-1}=\text{w}) = 2-\sqrt{\frac{4}{E[W]}}.
 \]
 
 \section{Inference}
